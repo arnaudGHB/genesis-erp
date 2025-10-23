@@ -81,4 +81,11 @@ export class UsersService {
     // Il est courant de ne rien retourner ou de retourner un message de succès
     return { message: `User with ID "${id}" successfully deleted.` };
   }
+
+  // 👇 AJOUTER CETTE NOUVELLE MÉTHODE 👇
+  async findOneByEmail(email: string) {
+    return this.prisma.user.findUnique({
+      where: { email },
+    });
+  }
 }
