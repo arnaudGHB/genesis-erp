@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 
@@ -34,5 +35,50 @@ export class UsersService {
         createdAt: true,
       }
     });
+  }
+
+  async findOne(id: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: id },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        createdAt: true,
+      }
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with ID "${id}" not found`);
+    }
+
+    return user;
+  }
+
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    await this.findOne(id); // Réutilise findOne pour vérifier que l'utilisateur existe
+
+    if (updateUserDto.password) {
+      updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
+    }
+
+    const updatedUser = await this.prisma.user.update({
+      where: { id: id },
+      data: updateUserDto,
+    });
+
+    const { password, ...result } = updatedUser;
+    return result;
+  }
+
+  async remove(id: string) {
+    await this.findOne(id); // Vérifie que l'utilisateur existe avant de supprimer
+
+    await this.prisma.user.delete({
+      where: { id: id },
+    });
+
+    // Il est courant de ne rien retourner ou de retourner un message de succès
+    return { message: `User with ID "${id}" successfully deleted.` };
   }
 }

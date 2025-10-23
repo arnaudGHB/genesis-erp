@@ -7,8 +7,8 @@
   "license": "UNLICENSED",
   "scripts": {
     "prebuild": "rimraf dist",
-    "prisma:generate": "npx --no-install prisma generate",
     "build": "chmod +x node_modules/.bin/prisma && npm run prisma:generate && tsc -p tsconfig.prod.json",
+    "prisma:generate": "npx --no-install prisma generate",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
