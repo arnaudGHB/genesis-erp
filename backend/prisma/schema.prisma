@@ -1,4 +1,6 @@
-// prisma/schema.prisma
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 generator client {
   provider      = "prisma-client-js"
   binaryTargets = ["native", "debian-openssl-3.0.x"]
@@ -9,11 +11,61 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// --- MODÈLES DE SÉCURITÉ ET UTILISATEURS ---
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
   name      String?
   password  String
+  roles     Role[]   @relation("UserRoles")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Permission {
+  id          String @id @default(cuid())
+  name        String @unique // ex: "product:create", "user:delete"
+  description String?
+  roles       Role[] @relation("RolePermissions")
+}
+
+model Role {
+  id          String       @id @default(cuid())
+  name        String       @unique // ex: "Administrateur", "Caissier"
+  description String?
+  users       User[]       @relation("UserRoles")
+  permissions Permission[] @relation("RolePermissions")
+}
+
+// --- MODÈLES MÉTIER (PRODUITS & STOCKS) ---
+
+model Product {
+  id          String       @id @default(cuid())
+  name        String
+  description String?
+  sku         String       @unique // Stock Keeping Unit - code article unique
+  barcode     String?      @unique // Code-barres
+  price       Float
+  cost        Float?       // Prix d'achat
+
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  stockLevels StockLevel[]
+}
+
+model StockLevel {
+  id        String @id @default(cuid())
+  quantity  Int    @default(0)
+  location  String // Ex: "Magasin Yaoundé", "Entrepôt Douala"
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([productId, location])
 }
