@@ -9,7 +9,8 @@ async function bootstrap() {
     'http://localhost:3000', // Développement local
     'http://localhost:3001', // Développement local
     'http://localhost:3002', // Développement local
-    'https://genesis-erp-frontend.vercel.app' // URL de production (à adapter)
+    'http://localhost:3003', // Ports de test
+    'https://genesis-erp-frontend-fxpnu1ro1-arnaudvcls-projects.vercel.app' // Frontend Vercel déployé
   ];
 
   app.enableCors({
