@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL, // L'URL de notre API Render !
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001', // URL par défaut pour le développement
 });
 
 // Intercepteur pour ajouter le token JWT à chaque requête

@@ -27,7 +27,7 @@ export default function LoginPage() {
       localStorage.setItem('access_token', access_token);
 
       alert('Connexion réussie ! Token stocké.');
-      // Plus tard, on redirigera vers le dashboard : window.location.href = '/dashboard';
+      // Plus tard, on redirigera vers le dashboard : window.location.href = '/';
     } catch (error) {
       console.error("Erreur de connexion:", error);
       alert('Email ou mot de passe incorrect.');

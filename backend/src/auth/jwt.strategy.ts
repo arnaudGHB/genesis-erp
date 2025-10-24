@@ -14,12 +14,15 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    // Cette méthode est appelée par passport-jwt si la signature du token est valide
-    // Le `payload`  est le contenu décodé du JWT
-    const user = await this.usersService.findOne(payload.sub); // payload.sub contient l'ID utilisateur
+    // payload.sub contient l'ID de l'utilisateur
+    const user = await this.usersService.findOneWithPermissions(payload.sub);
+
     if (!user) {
       throw new UnauthorizedException();
     }
-    return user; // NestJS attachera cet objet `user`  à l'objet Request
+
+    // On retire le mot de passe avant de l'attacher à la requête
+    const { password, ...result } = user;
+    return result;
   }
 }

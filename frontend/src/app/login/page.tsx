@@ -1,11 +1,17 @@
-"use client"; // Important pour les composants interactifs
+"use client";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useRouter } from "next/navigation";
 import api from "@/lib/api";
+import { useAuth } from "@/contexts/AuthContext";
 
-// Schéma de validation avec Zod
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
 const loginSchema = z.object({
   email: z.string().email("Adresse email invalide"),
   password: z.string().min(1, "Le mot de passe est requis"),
@@ -14,7 +20,9 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
-  const { register, handleSubmit, formState: { errors } } = useForm<LoginFormData>({
+  const { login } = useAuth();
+  const router = useRouter();
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
 
@@ -22,34 +30,40 @@ export default function LoginPage() {
     try {
       const response = await api.post('/auth/login', data);
       const { access_token } = response.data;
-
-      // Stocker le token dans le localStorage
-      localStorage.setItem('access_token', access_token);
-
-      alert('Connexion réussie ! Token stocké.');
-      // Plus tard, on redirigera vers le dashboard : window.location.href = '/dashboard';
+      await login(access_token);
+      router.push('/dashboard');
     } catch (error) {
       console.error("Erreur de connexion:", error);
+      // Améliorer le feedback utilisateur plus tard (ex: toast notification)
       alert('Email ou mot de passe incorrect.');
     }
   };
 
   return (
-    <div>
-      <h1>Connexion</h1>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div>
-          <label htmlFor="email">Email</label>
-          <input id="email" type="email" {...register("email")} />
-          {errors.email && <p>{errors.email.message}</p>}
-        </div>
-        <div>
-          <label htmlFor="password">Mot de passe</label>
-          <input id="password" type="password" {...register("password")} />
-          {errors.password && <p>{errors.password.message}</p>}
-        </div>
-        <button type="submit">Se connecter</button>
-      </form>
-    </div>
+    <main className="flex items-center justify-center min-h-screen bg-gray-100">
+      <Card className="w-full max-w-sm">
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold">Genesis Core ERP</CardTitle>
+          <CardDescription>Connectez-vous à votre espace de gestion</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Adresse email</Label>
+              <Input id="email" type="email" placeholder="m@example.com" {...register("email")} />
+              {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Mot de passe</Label>
+              <Input id="password" type="password" {...register("password")} />
+              {errors.password && <p className="text-sm text-red-500">{errors.password.message}</p>}
+            </div>
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
+              {isSubmitting ? 'Connexion en cours...' : 'Se connecter'}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+    </main>
   );
 }

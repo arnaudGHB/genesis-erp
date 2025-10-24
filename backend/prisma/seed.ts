@@ -1,4 +1,4 @@
-import { PrismaClient, Role as PrismaRole } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
@@ -6,23 +6,51 @@ const prisma = new PrismaClient();
 async function main() {
   console.log(`Start seeding ...` );
 
-  // 1. Hacher le mot de passe de l'administrateur
-  const hashedPassword = await bcrypt.hash('SuperPassword123!', 10);
+  // 1. Créer les permissions de base
+  const permissionsToCreate = [
+    'user:create', 'user:read', 'user:update', 'user:delete',
+    'product:create', 'product:read', 'product:update', 'product:delete',
+    'stock:read', 'stock:adjust',
+    'role:read', 'role:assign'
+  ];
 
-  // 2. Créer les rôles de base s'ils n'existent pas
+  for (const permName of permissionsToCreate) {
+    await prisma.permission.upsert({
+      where: { name: permName },
+      update: {},
+      create: { name: permName },
+    });
+  }
+  console.log('Permissions created/verified.');
+
+  // 2. Créer les rôles de base
   const adminRole = await prisma.role.upsert({
     where: { name: 'ADMIN' },
     update: {},
     create: { name: 'ADMIN', description: 'Administrator with all permissions' },
   });
 
-  const cashierRole = await prisma.role.upsert({
+  await prisma.role.upsert({
     where: { name: 'CASHIER' },
     update: {},
     create: { name: 'CASHIER', description: 'Cashier with POS access' },
   });
+  console.log('Roles created/verified.');
 
-  // 3. Créer l'utilisateur administrateur principal
+  // 3. Associer toutes les permissions au rôle ADMIN
+  const allPermissions = await prisma.permission.findMany();
+  await prisma.role.update({
+    where: { id: adminRole.id },
+    data: {
+      permissions: {
+        set: allPermissions.map(p => ({ id: p.id })),
+      },
+    },
+  });
+  console.log('All permissions assigned to ADMIN role.');
+
+  // 4. Créer l'utilisateur administrateur principal
+  const hashedPassword = await bcrypt.hash('SuperPassword123!', 10);
   const adminUser = await prisma.user.upsert({
     where: { email: 'admin.genesis@erp.com' },
     update: {},
@@ -31,14 +59,12 @@ async function main() {
       name: 'Admin Genesis',
       password: hashedPassword,
       roles: {
-        connect: { id: adminRole.id }, // Lui assigner le rôle ADMIN
+        connect: { id: adminRole.id },
       },
     },
   });
-
+  console.log(`Admin user created/verified: ${adminUser.email}` );
   console.log(`Seeding finished.` );
-  console.log(`Created admin user: ${adminUser.email}` );
-  console.log(`Created roles: ${adminRole.name}, ${cashierRole.name}` );
 }
 
 main()

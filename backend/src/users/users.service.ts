@@ -88,4 +88,22 @@ export class UsersService {
       where: { email },
     });
   }
+
+  async findOneWithPermissions(id: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      include: {
+        roles: {
+          include: {
+            permissions: true,
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with ID "${id}" not found`);
+    }
+    return user;
+  }
 }
