@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import api from '@/lib/api';
 
 // Définir des types plus précis
@@ -16,10 +16,10 @@ interface User {
 interface AuthContextType {
   token: string | null;
   user: User | null;
-  login: (token: string) => Promise<void>; // Changé en Promise
+  login: (token: string) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
-  hasPermission: (permission: string) => boolean; // Nouvelle fonction
+  hasPermission: (permission: string) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -30,11 +30,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [permissions, setPermissions] = useState<Set<string>>(new Set());
 
-  const fetchProfile = async () => {
+  const logout = useCallback(() => {
+    setToken(null);
+    setUser(null);
+    setPermissions(new Set());
+    localStorage.removeItem('access_token');
+    delete api.defaults.headers.common['Authorization'];
+    window.location.href = '/login';
+  }, []);
+
+  const fetchProfile = useCallback(async () => {
     try {
       const response = await api.get('/auth/profile');
       setUser(response.data);
-      // Consolider toutes les permissions de tous les rôles dans un Set pour une recherche rapide
       const userPermissions = new Set<string>();
       response.data.roles.forEach((role: Role) => {
         role.permissions.forEach((perm: Permission) => {
@@ -46,33 +54,35 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.error("Failed to fetch profile, logging out.", error);
       logout(); // Si le token est invalide, on déconnecte
     }
-  };
+  }, [logout]);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem('access_token');
-    if (storedToken) {
-      setToken(storedToken);
-      api.defaults.headers.common['Authorization'] = `Bearer ${storedToken}` ;
-      fetchProfile().finally(() => setIsLoading(false));
-    } else {
+    const initializeAuth = async () => {
+      const storedToken = localStorage.getItem('access_token');
+      if (storedToken) {
+        api.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
+        try {
+          await fetchProfile();
+        } catch (error) {
+          console.error("Profile fetch failed:", error);
+        }
+      }
       setIsLoading(false);
+    };
+
+    initializeAuth();
+  }, [fetchProfile]);
+
+  useEffect(() => {
+    if (token) {
+      localStorage.setItem('access_token', token);
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     }
-  }, []);
+  }, [token]);
 
   const login = async (newToken: string) => {
     setToken(newToken);
-    localStorage.setItem('access_token', newToken);
-    api.defaults.headers.common['Authorization'] = `Bearer ${newToken}` ;
     await fetchProfile(); // Récupérer le profil juste après la connexion
-  };
-
-  const logout = () => {
-    setToken(null);
-    setUser(null);
-    setPermissions(new Set());
-    localStorage.removeItem('access_token');
-    delete api.defaults.headers.common['Authorization'];
-    window.location.href = '/login';
   };
 
   const hasPermission = (permission: string) => {

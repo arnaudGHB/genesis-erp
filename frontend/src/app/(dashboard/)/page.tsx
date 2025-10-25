@@ -1,3 +1,4 @@
+"use client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
@@ -9,7 +10,7 @@ export default function DashboardPage() {
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Tableau de Bord</h2>
           <p className="text-muted-foreground">
-            Vue d'ensemble de votre ERP Genesis Core
+            Vue d&apos;ensemble de votre ERP Genesis Core
           </p>
         </div>
 
@@ -55,7 +56,7 @@ export default function DashboardPage() {
           <CardContent>
             <div className="text-2xl font-bold">0 FCFA</div>
             <p className="text-xs text-muted-foreground">
-              Valeur totale de l'inventaire
+              Valeur totale de l&apos;inventaire
             </p>
           </CardContent>
         </Card>
@@ -133,27 +134,28 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between">
               <span className="text-sm">Base de données</span>
               <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-destructive rounded-full"></div>
+                <div className="w-2 h-2 bg-red-500 rounded-full"></div>
                 <span className="text-xs text-muted-foreground">Déconnectée</span>
               </div>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm">API Backend</span>
               <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-destructive rounded-full"></div>
+                <div className="w-2 h-2 bg-red-500 rounded-full"></div>
                 <span className="text-xs text-muted-foreground">Indisponible</span>
               </div>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm">Authentification</span>
               <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-success rounded-full"></div>
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                 <span className="text-xs text-muted-foreground">Active</span>
               </div>
+            </div>
             <div className="flex items-center justify-between">
               <span className="text-sm">Frontend</span>
               <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-success rounded-full"></div>
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                 <span className="text-xs text-muted-foreground">Actif</span>
               </div>
             </div>
