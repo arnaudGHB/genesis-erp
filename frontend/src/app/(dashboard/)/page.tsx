@@ -1,4 +1,4 @@
-"use client";
+Ôªø"use client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -13,7 +13,7 @@ export default function DashboardPage() {
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Tableau de Bord</h2>
           <p className="text-muted-foreground">
-            Vue d&apos;ensemble de votre ERP Genesis Core - ConnectÈ en tant que : {user?.email}
+            Vue d&apos;ensemble de votre ERP Genesis Core - Connect√© en tant que : {user?.email}
           </p>
         </div>
 
@@ -21,9 +21,9 @@ export default function DashboardPage() {
           <Button variant="outline" onClick={() => window.location.reload()}>
             Actualiser
           </Button>
-          <Button>GÈnÈrer Rapport</Button>
+          <Button>G√©n√©rer Rapport</Button>
           <Button variant="outline" onClick={logout}>
-            DÈconnexion
+            D√©connexion
           </Button>
         </div>
       </div>
@@ -33,7 +33,7 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Produits</CardTitle>
-            <div className="h-4 w-4 text-muted-foreground">??</div>
+            <div className="h-4 w-4 text-muted-foreground">üè™</div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">0</div>
@@ -46,7 +46,7 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Stock Total</CardTitle>
-            <div className="h-4 w-4 text-muted-foreground">??</div>
+            <div className="h-4 w-4 text-muted-foreground">üì¶</div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">0</div>
@@ -59,7 +59,7 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Valeur Stock</CardTitle>
-            <div className="h-4 w-4 text-muted-foreground">??</div>
+            <div className="h-4 w-4 text-muted-foreground">üí∞</div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">0 FCFA</div>
@@ -72,7 +72,7 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Utilisateurs</CardTitle>
-            <div className="h-4 w-4 text-muted-foreground">??</div>
+            <div className="h-4 w-4 text-muted-foreground">üë•</div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">1</div>
@@ -89,42 +89,42 @@ export default function DashboardPage() {
           <CardHeader>
             <CardTitle>Actions Rapides</CardTitle>
             <CardDescription>
-              AccËs rapide aux fonctionnalitÈs principales
+              Acc√®s rapide aux fonctionnalit√©s principales
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             <Button className="w-full justify-start" variant="outline">
-              ? Nouveau Produit
+              ‚ûï Nouveau Produit
             </Button>
             <Button className="w-full justify-start" variant="outline">
-              ?? Ajuster Stock
+              üì¶ Ajuster Stock
             </Button>
             <Button className="w-full justify-start" variant="outline">
-              ?? Ajouter Utilisateur
+              üë§ Ajouter Utilisateur
             </Button>
             <Button className="w-full justify-start" variant="outline">
-              ?? Consulter Stocks
+              üìä Consulter Stocks
             </Button>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>ActivitÈ RÈcente</CardTitle>
+            <CardTitle>Activit√© R√©cente</CardTitle>
             <CardDescription>
-              DerniËres actions dans le systËme
+              Derni√®res actions dans le syst√®me
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               <div className="flex items-center space-x-3 text-sm">
                 <div className="w-2 h-2 bg-primary rounded-full"></div>
-                <span className="text-muted-foreground">SystËme initialisÈ</span>
+                <span className="text-muted-foreground">Syst√®me initialis√©</span>
                 <span className="text-xs text-muted-foreground ml-auto">Maintenant</span>
               </div>
               <div className="flex items-center space-x-3 text-sm">
                 <div className="w-2 h-2 bg-muted rounded-full"></div>
-                <span className="text-muted-foreground">Administrateur crÈÈ</span>
+                <span className="text-muted-foreground">Administrateur cr√©√©</span>
                 <span className="text-xs text-muted-foreground ml-auto">Maintenant</span>
               </div>
             </div>
@@ -133,17 +133,17 @@ export default function DashboardPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>SystËme</CardTitle>
+            <CardTitle>Syst√®me</CardTitle>
             <CardDescription>
-              …tat du systËme et configuration
+              √âtat du syst√®me et configuration
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-sm">Base de donnÈes</span>
+              <span className="text-sm">Base de donn√©es</span>
               <div className="flex items-center space-x-2">
                 <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                <span className="text-xs text-muted-foreground">DÈconnectÈe</span>
+                <span className="text-xs text-muted-foreground">D√©connect√©e</span>
               </div>
             </div>
             <div className="flex items-center justify-between">
@@ -176,7 +176,7 @@ export default function DashboardPage() {
         <CardHeader>
           <CardTitle>Bienvenue dans Genesis Core ERP !</CardTitle>
           <CardDescription>
-            Votre systËme de gestion pour librairies scolaires est maintenant opÈrationnel.
+            Votre syst√®me de gestion pour librairies scolaires est maintenant op√©rationnel.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -193,7 +193,7 @@ export default function DashboardPage() {
                 <div>
                   <h4 className="font-medium">Naviguer</h4>
                   <p className="text-sm text-muted-foreground">
-                    Utilisez la barre latÈrale pour accÈder aux diffÈrentes sections
+                    Utilisez la barre lat√©rale pour acc√©der aux diff√©rentes sections
                   </p>
                 </div>
               </div>
@@ -203,9 +203,9 @@ export default function DashboardPage() {
                   <span className="text-primary font-bold">2</span>
                 </div>
                 <div>
-                  <h4 className="font-medium">GÈrer les utilisateurs</h4>
+                  <h4 className="font-medium">G√©rer les utilisateurs</h4>
                   <p className="text-sm text-muted-foreground">
-                    CrÈez et gÈrez les comptes de votre Èquipe
+                    Cr√©ez et g√©rez les comptes de votre √©quipe
                   </p>
                 </div>
               </div>
@@ -217,7 +217,7 @@ export default function DashboardPage() {
                 <div>
                   <h4 className="font-medium">Configurer</h4>
                   <p className="text-sm text-muted-foreground">
-                    Ajustez les paramËtres selon vos besoins
+                    Ajustez les param√®tres selon vos besoins
                   </p>
                 </div>
               </div>
