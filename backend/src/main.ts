@@ -10,7 +10,8 @@ async function bootstrap() {
     'http://localhost:3001', // Développement local - Backend (même serveur)
     'http://localhost:3002', // Développement local - ports de test
     'http://localhost:3003', // Développement local - ports de test
-    'https://genesis-erp-frontend-fxpnu1ro1-arnaudvcls-projects.vercel.app' // Frontend Vercel déployé
+    'https://genesis-erp-frontend-fxpnu1ro1-arnaudvcls-projects.vercel.app', // Frontend Vercel déployé (ancien)
+    'https://genesis-erp-frontend-m9ftxq3rz-arnaudvcls-projects.vercel.app'  // Frontend Vercel déployé (nouveau)
   ];
 
   app.enableCors({
