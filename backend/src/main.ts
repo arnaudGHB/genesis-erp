@@ -6,10 +6,10 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const whitelist = [
-    'http://localhost:3000', // Développement local
-    'http://localhost:3001', // Développement local
-    'http://localhost:3002', // Développement local
-    'http://localhost:3003', // Ports de test
+    'http://localhost:3000', // Développement local - Frontend Next.js
+    'http://localhost:3001', // Développement local - Backend (même serveur)
+    'http://localhost:3002', // Développement local - ports de test
+    'http://localhost:3003', // Développement local - ports de test
     'https://genesis-erp-frontend-fxpnu1ro1-arnaudvcls-projects.vercel.app' // Frontend Vercel déployé
   ];
 
@@ -27,6 +27,6 @@ async function bootstrap() {
 
   app.useGlobalPipes(new ValidationPipe());
 
-  await app.listen(process.env.PORT || 3000); // Port flexible
+  await app.listen(process.env.PORT || 3001); // Port 3001 pour correspondre au proxy frontend
 }
 bootstrap();

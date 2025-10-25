@@ -51,10 +51,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
       setPermissions(userPermissions);
     } catch (error) {
-      console.error("Failed to fetch profile, logging out.", error);
-      logout(); // Si le token est invalide, on déconnecte
+      console.error("Failed to fetch profile:", error);
+      // Ne déconnecter que si on a déjà un token (token expiré/invalide)
+      // Pas pendant la première connexion
+      if (token) {
+        logout();
+      }
     }
-  }, [logout]);
+  }, [token, logout]);
 
   useEffect(() => {
     const initializeAuth = async () => {
@@ -65,6 +69,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           await fetchProfile();
         } catch (error) {
           console.error("Profile fetch failed:", error);
+          // Token invalide, on le supprime mais on ne redirige pas
+          localStorage.removeItem('access_token');
+          delete api.defaults.headers.common['Authorization'];
         }
       }
       setIsLoading(false);
@@ -82,6 +89,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (newToken: string) => {
     setToken(newToken);
+    localStorage.setItem('access_token', newToken);
+    api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
     await fetchProfile(); // Récupérer le profil juste après la connexion
   };
 
