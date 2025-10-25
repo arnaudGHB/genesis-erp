@@ -1,8 +1,11 @@
 "use client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function DashboardPage() {
+  const { logout, user } = useAuth();
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -10,13 +13,18 @@ export default function DashboardPage() {
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Tableau de Bord</h2>
           <p className="text-muted-foreground">
-            Vue d&apos;ensemble de votre ERP Genesis Core
+            Vue d&apos;ensemble de votre ERP Genesis Core - Connecté en tant que : {user?.email}
           </p>
         </div>
 
         <div className="flex items-center space-x-2">
-          <Button variant="outline">Actualiser</Button>
-          <Button>GÃ©nÃ©rer Rapport</Button>
+          <Button variant="outline" onClick={() => window.location.reload()}>
+            Actualiser
+          </Button>
+          <Button>Générer Rapport</Button>
+          <Button variant="outline" onClick={logout}>
+            Déconnexion
+          </Button>
         </div>
       </div>
 
@@ -25,7 +33,7 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Produits</CardTitle>
-            <div className="h-4 w-4 text-muted-foreground">ğŸª</div>
+            <div className="h-4 w-4 text-muted-foreground">??</div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">0</div>
@@ -38,7 +46,7 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Stock Total</CardTitle>
-            <div className="h-4 w-4 text-muted-foreground">ğŸ“¦</div>
+            <div className="h-4 w-4 text-muted-foreground">??</div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">0</div>
@@ -51,7 +59,7 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Valeur Stock</CardTitle>
-            <div className="h-4 w-4 text-muted-foreground">ğŸ’°</div>
+            <div className="h-4 w-4 text-muted-foreground">??</div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">0 FCFA</div>
@@ -64,7 +72,7 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Utilisateurs</CardTitle>
-            <div className="h-4 w-4 text-muted-foreground">ğŸ‘¥</div>
+            <div className="h-4 w-4 text-muted-foreground">??</div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">1</div>
@@ -81,42 +89,42 @@ export default function DashboardPage() {
           <CardHeader>
             <CardTitle>Actions Rapides</CardTitle>
             <CardDescription>
-              AccÃ¨s rapide aux fonctionnalitÃ©s principales
+              Accès rapide aux fonctionnalités principales
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             <Button className="w-full justify-start" variant="outline">
-              â• Nouveau Produit
+              ? Nouveau Produit
             </Button>
             <Button className="w-full justify-start" variant="outline">
-              ğŸ“¦ Ajuster Stock
+              ?? Ajuster Stock
             </Button>
             <Button className="w-full justify-start" variant="outline">
-              ğŸ‘¤ Ajouter Utilisateur
+              ?? Ajouter Utilisateur
             </Button>
             <Button className="w-full justify-start" variant="outline">
-              ğŸ“Š Consulter Stocks
+              ?? Consulter Stocks
             </Button>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>ActivitÃ© RÃ©cente</CardTitle>
+            <CardTitle>Activité Récente</CardTitle>
             <CardDescription>
-              DerniÃ¨res actions dans le systÃ¨me
+              Dernières actions dans le système
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               <div className="flex items-center space-x-3 text-sm">
                 <div className="w-2 h-2 bg-primary rounded-full"></div>
-                <span className="text-muted-foreground">SystÃ¨me initialisÃ©</span>
+                <span className="text-muted-foreground">Système initialisé</span>
                 <span className="text-xs text-muted-foreground ml-auto">Maintenant</span>
               </div>
               <div className="flex items-center space-x-3 text-sm">
                 <div className="w-2 h-2 bg-muted rounded-full"></div>
-                <span className="text-muted-foreground">Administrateur crÃ©Ã©</span>
+                <span className="text-muted-foreground">Administrateur créé</span>
                 <span className="text-xs text-muted-foreground ml-auto">Maintenant</span>
               </div>
             </div>
@@ -125,17 +133,17 @@ export default function DashboardPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>SystÃ¨me</CardTitle>
+            <CardTitle>Système</CardTitle>
             <CardDescription>
-              Ã‰tat du systÃ¨me et configuration
+              État du système et configuration
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-sm">Base de donnÃ©es</span>
+              <span className="text-sm">Base de données</span>
               <div className="flex items-center space-x-2">
                 <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                <span className="text-xs text-muted-foreground">DÃ©connectÃ©e</span>
+                <span className="text-xs text-muted-foreground">Déconnectée</span>
               </div>
             </div>
             <div className="flex items-center justify-between">
@@ -168,7 +176,7 @@ export default function DashboardPage() {
         <CardHeader>
           <CardTitle>Bienvenue dans Genesis Core ERP !</CardTitle>
           <CardDescription>
-            Votre systÃ¨me de gestion pour librairies scolaires est maintenant opÃ©rationnel.
+            Votre système de gestion pour librairies scolaires est maintenant opérationnel.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -185,7 +193,7 @@ export default function DashboardPage() {
                 <div>
                   <h4 className="font-medium">Naviguer</h4>
                   <p className="text-sm text-muted-foreground">
-                    Utilisez la barre latÃ©rale pour accÃ©der aux diffÃ©rentes sections
+                    Utilisez la barre latérale pour accéder aux différentes sections
                   </p>
                 </div>
               </div>
@@ -195,9 +203,9 @@ export default function DashboardPage() {
                   <span className="text-primary font-bold">2</span>
                 </div>
                 <div>
-                  <h4 className="font-medium">GÃ©rer les utilisateurs</h4>
+                  <h4 className="font-medium">Gérer les utilisateurs</h4>
                   <p className="text-sm text-muted-foreground">
-                    CrÃ©ez et gÃ©rez les comptes de votre Ã©quipe
+                    Créez et gérez les comptes de votre équipe
                   </p>
                 </div>
               </div>
@@ -209,7 +217,7 @@ export default function DashboardPage() {
                 <div>
                   <h4 className="font-medium">Configurer</h4>
                   <p className="text-sm text-muted-foreground">
-                    Ajustez les paramÃ¨tres selon vos besoins
+                    Ajustez les paramètres selon vos besoins
                   </p>
                 </div>
               </div>
