@@ -14,10 +14,21 @@ async function testAdminAuth() {
     });
 
     console.log('✅ Login successful!');
-    console.log('📄 Response:', JSON.stringify(loginResponse.data, null, 2));
+    // IMPORTANT: avoid logging full responses that may contain sensitive user data or tokens.
+    // Log only minimal, non-sensitive metadata for local testing.
+    const safeInfo = {
+      status: loginResponse.status,
+      userId: loginResponse.data?.user?.id ?? null,
+      message: 'response redacted for privacy'
+    };
+    console.log('📄 Response (safe):', JSON.stringify(safeInfo, null, 2));
 
-    const token = loginResponse.data.access_token;
-    console.log('\n🔑 JWT Token received:', token.substring(0, 50) + '...');
+    const token = loginResponse.data?.access_token;
+    if (token) {
+      console.log('\n🔑 JWT Token received (truncated):', token.substring(0, 50) + '...');
+    } else {
+      console.log('\n🔑 No access token present in login response');
+    }
 
     // Test 2: Access protected routes with token
     console.log('\n📝 Test 2: Access protected routes with token');

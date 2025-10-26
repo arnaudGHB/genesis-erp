@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setToken(null);
     setUser(null);
     setPermissions(new Set());
-    localStorage.removeItem('access_token');
+    // backend will clear refresh cookie on logout endpoint
     delete api.defaults.headers.common['Authorization'];
     window.location.href = '/login';
   }, []);
@@ -62,17 +62,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const initializeAuth = async () => {
-      const storedToken = localStorage.getItem('access_token');
-      if (storedToken) {
-        api.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
-        try {
+      // Try to refresh access token using HttpOnly refresh cookie
+      try {
+        const res = await api.post('/auth/refresh');
+        const access = res.data?.access_token;
+        if (access) {
+          setToken(access);
+          api.defaults.headers.common['Authorization'] = `Bearer ${access}`;
           await fetchProfile();
-        } catch (error) {
-          console.error("Profile fetch failed:", error);
-          // Token invalide, on le supprime mais on ne redirige pas
-          localStorage.removeItem('access_token');
-          delete api.defaults.headers.common['Authorization'];
         }
+      } catch (e) {
+        // no valid session
       }
       setIsLoading(false);
     };
@@ -82,14 +82,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     if (token) {
-      localStorage.setItem('access_token', token);
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     }
   }, [token]);
 
   const login = async (newToken: string) => {
     setToken(newToken);
-    localStorage.setItem('access_token', newToken);
     api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
     await fetchProfile(); // Récupérer le profil juste après la connexion
   };
@@ -100,7 +98,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider value={{ token, user, login, logout, isLoading, hasPermission }}>
-      {!isLoading && children}
+      {children}
     </AuthContext.Provider>
   );
 };

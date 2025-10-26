@@ -1,518 +1,3 @@
-# Document de Capture des Besoins pour le Projet ERP/PGI SaaS pour Librairies Scolaires au Cameroun
-
-**Version :** 1.0 (Initiale – Basée sur Analyse Sectorielle Approfondie)  
-**Date de Rédaction :** 20 Octobre 2025  
-**Préparé par :** Genesis Core (Startup Spécialisée en Digitalisation des Entreprises en Afrique Subsaharienne, en tant que Chef de Projet et Expert en Logiciels de Gestion)  
-**Destiné à :** Réseau de Librairies Scolaires du Cameroun (et Équipe de Développement Interne de Genesis Core)  
-**Statut :** Brouillon – À Valider par les Parties Prenantes  
-
-## Résumé Exécutif
-
-Chez Genesis Core, nous avons capturé de manière exhaustive les besoins pour le développement d'un ERP/PGI (Entreprise Resource Planning / Progiciel de Gestion Intégré) modulaire et SaaS (Software as a Service) destiné à un réseau de librairies scolaires au Cameroun. Ce document est basé sur les échanges précédents, le cahier des charges initial, et les extensions fonctionnelles discutées (y compris les specs étendues pour un logiciel concurrentiel, moderne, sécurisé, robuste, scalable et maintenable, adaptées aux contraintes sectorielles comme les pics saisonniers et la conformité locale).  
-
-La capture des besoins est l'étape fondatrice de tout projet logiciel, visant à aligner les attentes des stakeholders sur les fonctionnalités, contraintes et objectifs. Elle utilise une approche structurée inspirée des meilleures pratiques (Agile/Scrum pour le backlog avec itérations courtes et feedback continu, et Waterfall pour la documentation formelle avec phases séquentielles), adaptée à une implémentation efficace et personnalisée. Notre analyse du secteur des librairies scolaires révèle des besoins spécifiques comme la gestion des listes officielles MINEDUB/MINESEC, les retours d'invendus post-rentrée, et l'intégration de paiements mobiles pour 80 % des transactions.  
-
-Ce document couvre :  
-- Les objectifs et contexte, avec détails sur les opérations quotidiennes et défis sectoriels.  
-- La méthodologie de capture, incluant sources, outils et techniques employées.  
-- Les besoins fonctionnels (organisés en Epics et User Stories priorisées, avec exemples concrets pour clarté).  
-- Les besoins non-fonctionnels (sécurité, performance, etc., avec critères mesurables).  
-- Les hypothèses, contraintes et risques, avec mitigations détaillées.  
-- Les prochaines étapes pour validation et planification, incluant timelines indicatives.  
-
-Le but est de fournir une base solide pour passer à la phase de planification et développement, en maximisant l'utilisation de fonctionnalités standards tout en identifiant les personnalisations nécessaires pour combler les gaps sectoriels.
-
-## 1. Introduction
-
-### 1.1. Présentation de l'Entreprise Cliente
-Le client gère un réseau de librairies scolaires au Cameroun, spécialisé dans la vente de livres éducatifs (éditions locales et importées, avec mises à jour annuelles basées sur programmes MINEDUB/MINESEC), fournitures scolaires (cahiers, stylos, sacs, etc.), et articles connexes (règles, gommes, tableaux). Le réseau comprend plusieurs points de vente (PDV) répartis dans des zones urbaines et semi-rurales, avec des pics d'activité saisonniers intenses lors de la rentrée scolaire (août-septembre, représentant 60 % du chiffre d'affaires annuel). Les opérations actuelles incluent la gestion des stocks multi-sites (avec transferts fréquents pour équilibrer excédents et pénuries), les ventes en magasin via POS (encaissements rapides pour listes complètes de 50 articles), en ligne via sites existants (commandes groupées d'écoles privées/publiques), la comptabilité (déclarations mensuelles OHADA à la DGI), les RH (embauches saisonnières de 20-30 vendeurs pour pics, avec paie incluant primes), et les interactions avec fournisseurs (locaux pour fournitures basiques, internationaux pour livres avec délais 4-6 semaines) et clients (écoles 40 %, parents 50 %, grossistes 10 %). Des contraintes locales existent : instabilité réseau (coupures jusqu'à 48h en rural, nécessitant offline), conformité réglementaire (OHADA/SYSCOHADA pour bilans fiscaux, CNPS pour cotisations RH), et intégrations paiements mobiles (Orange Money/Mobile Money pour 80 % transactions, avec split payments pour parents).
-
-### 1.2. Contexte du Projet
-Ce projet vise à moderniser les opérations via un ERP/PGI modulaire en mode SaaS, respectant les normes comptables OHADA/SYSCOHADA et les contraintes locales (instabilité réseau rural). Il répond à des besoins comme la centralisation multi-PDV, la synchronisation temps réel/offline, l'intégration e-commerce avec sites existants, et des innovations (IA pour prévisions, Blockchain pour traçabilité, IoT pour scanners). Chez Genesis Core, notre analyse du secteur montre que les librairies scolaires perdent 15 % de marge due à gestion manuelle ; ce système vise à réduire cela via automatisations et SaaS pour monétiser (abonnements écoles partenaires).
-
-### 1.3. Objectifs Généraux
-- Centraliser la gestion commerciale, comptable, RH, POS et e-commerce pour réduire les erreurs et optimiser les coûts.  
-- Permettre une gestion multi-PDV avec synchronisation temps réel et consolidation.  
-- Garantir la conformité réglementaire (OHADA, RGPD-like).  
-- Intégrer des technologies modernes pour l'optimisation (IA, Blockchain, IoT).  
-- Assurer scalabilité (cloud-ready), sécurité et interopérabilité via des APIs.  
-- Réduire les pertes et augmenter le ROI via des insights data-driven.
-
-### 1.4. Portée Globale
-- Inclus : Développement modulaire couvrant le backlog, intégrations (paiements OM/MoMo, SMS/Email, biométrie), innovations, architecture microservices, migration données, formation (2x4h avec simulations), support post-livraison (3 mois). Adaptation SaaS : multi-tenants, onboarding, dashboard abonnements.  
-- Exclus : Marketing avancé, apps natives non-essentielles, intégrations tiers non spécifiées, hébergement/maintenance post-livraison, modifications sans avenant.
-
-### 1.5. Glossaire
-- PDV : Point de Vente.  
-- OHADA / SYSCOHADA : Cadre légal et comptable des affaires en Afrique.  
-- POS : Point of Sale (système de caisse).  
-- IA/ML : Intelligence Artificielle/Machine Learning.  
-- IoT : Internet of Things (Internet des Objets).  
-- LTS : Long-Term Support (Support à Long Terme).  
-- MINEDUB/MINESEC : Ministères camerounais de l'éducation.  
-- DGI : Direction Générale des Impôts.  
-- CNPS : Caisse Nationale de Prévoyance Sociale.  
-
-## 2. Méthodologie de Capture des Besoins
-
-La capture des besoins a été menée via une approche itérative et collaborative :  
-- Sources : Échanges avec l'utilisateur (cahier des charges initial, extensions specs), analyse des contraintes africaines (OHADA, réseau instable), et benchmarks ERP modernes (2025 standards pour scalabilité/IA).  
-- Outils et Techniques :  
-  - Ateliers virtuels/imaginés (questions-réponses pour clarifier épics, avec exemples concrets comme listes CM2).  
-  - Priorisation MoSCoW (Must-have, Should-have, Could-have, Won't-have) et niveaux P0/P1/P2, avec focus sur MVP.  
-  - User Stories format : "En tant que [rôle], je veux [fonctionnalité] afin de [bénéfice]", avec exemples pour clarté.  
-  - Gap Analysis : Comparaison avec standards sectoriels (natif vs. personnalisé).  
-- Parties Prenantes : Utilisateur principal (Arnaud Nagué/Genesis Core), équipe client (gérants PDV, comptables), et analystes Genesis Core pour expertise.  
-- Validation : Ce document est à reviewer par les stakeholders pour itérations, avec sessions feedback détaillées.
-
-## 3. Besoins Fonctionnels
-
-Les besoins sont organisés en Epics (grands modules) et User Stories priorisées (P0 : Critique/MVP, P1 : Essentiel, P2 : Avancé). Ils couvrent ~95 % des besoins pour un ERP concurrentiel, avec extensions modernes (IA, Blockchain, IoT) adaptées à une implémentation efficace.
-
-### Epic 1 : Centre de Configuration (Back Office) – Flexibilité et Personnalisation
-Ce module est le centre de contrôle qui rend l'ERP flexible.  
-- [CONF-001 / P0] En tant qu'admin, je veux gérer utilisateurs, rôles et permissions granulaires (incl. MFA, logs d'accès) afin de sécuriser l'accès.  
-- [CONF-002 / P0] En tant qu'admin, je veux configurer multi-entreprises/PDV avec hiérarchies (central/local) afin de gérer un réseau.  
-- [CONF-003 / P0] En tant qu'admin, je veux définir infos entreprise/PDV (logos, adresses) pour documents officiels afin de personnaliser les outputs.  
-- [CONF-004 / P0] En tant qu'admin, je veux gérer taxes (TVA, OHADA) avec calculs auto et mises à jour afin de respecter la réglementation.  
-- [CONF-005 / P1] En tant qu'admin, je veux gérer devises/taux de change (multi-devises, conversions temps réel) afin de traiter les paiements internationaux.  
-- [CONF-006 / P1] En tant qu'admin, je veux ajouter champs personnalisés pour fiches (clients/articles/fournisseurs) avec validation dynamique afin d'adapter aux besoins locaux.  
-- [CONF-007 / P1] En tant qu'admin, je veux personnaliser modèles documents (factures/reçus, PDF/Excel, signatures électroniques) afin de générer des docs professionnels.  
-- [CONF-008 / P1] En tant qu'admin, je veux éditer notifications (SMS/emails/push, templates multilingues) afin d'automatiser les communications.  
-- [CONF-009 / P1] En tant qu'admin, je veux gérer listes scolaires types (paramétrables par niveau/classe, import CSV) afin de faciliter les ventes scolaires.  
-- [CONF-010 / P1] En tant qu'admin, je veux configurer moyens paiement (espèces, OM/MoMo, cartes) afin d'intégrer les options locales.  
-- [CONF-011 / P2] En tant qu'admin, je veux un moteur règles métier (SI-ALORS) pour automatisations (remises, alerts IA) afin d'optimiser les processus.  
-- [CONF-012 / P2] En tant qu'admin, je veux un éditeur visuel workflows (drag-and-drop, BPMN) afin de modéliser les approbations.  
-- [CONF-013 / P1] En tant qu'utilisateur, je veux thèmes UI personnalisables (dark mode, WCAG) afin d'améliorer l'accessibilité.  
-- [CONF-014 / P2] En tant qu'admin, je veux intégration AI pour suggestions config (ex. auto-taxes) afin d'accélérer la setup.  
-- [CONF-015 / P2] En tant qu'admin, je veux un dashboard avec analytics KPI (utilisation, alertes) afin de monitorer le système.  
-
-### Epic 2 : Gestion des Tiers (Clients & Fournisseurs) – CRM Avancé
-- [TIERS-001 / P0] En tant que vendeur, je veux créer/gérer fiches clients (détail/grossiste, historique) afin de segmenter les ventes.  
-- [TIERS-002 / P0] En tant qu'acheteur, je veux créer/gérer fiches fournisseurs (contrats, évaluations) afin de suivre les appros.  
-- [TIERS-003 / P0] En tant que marketeur, je veux gérer prospects/leads (capture web/mobile, scoring auto) afin de convertir.  
-- [TIERS-004 / P1] En tant que vendeur, je veux une vue 360° client (historique, crédits, omni-canal) afin d'améliorer le service.  
-- [TIERS-005 / P1] En tant que comptable, je veux gérer limites crédit/conditions (rappels auto) afin de minimiser les risques.  
-- [TIERS-006 / P1] En tant qu'admin, je veux intégrer RGPD-like (consentements, anonymisation) afin de respecter la privacy.  
-- [TIERS-007 / P2] En tant que crédit manager, je veux un score IA fiabilité crédit (ML sur historique) afin d'aider les décisions.  
-- [TIERS-008 / P2] En tant qu'acheteur, je veux historique immuable contrats (blockchain) afin de traçabilité.  
-- [TIERS-009 / P1] En tant que client, je veux un portail self-service (suivi commandes, factures) afin d'autonomie.  
-- [TIERS-010 / P2] En tant que marketeur, je veux intégration social media (leads via X/Facebook) afin de capturer prospects.  
-- [TIERS-011 / P2] En tant qu'analyste, je veux analytics tiers (churn prediction, RFM) afin d'optimiser la rétention.  
-
-### Epic 4 : Point de Vente (POS) et Gestion des Caisses – Omni-Canal
-- [POS-001 / P0] En tant que caissier, je veux gérer sessions caisse (ouverture/clôture, rapports Z) afin de comptabiliser ventes.  
-- [POS-002 / P0] En tant que caissier, je veux ajouter articles au panier (recherche/scan/listes) avec upsell afin de vendre.  
-- [POS-003 / P0] En tant que caissier, je veux appliquer remises (règles, coupons) afin de promotions.  
-- [POS-004 / P0] En tant que caissier, je veux encaissement multi-moyens (espèces, OM/MoMo, split) afin de flexibilité.  
-- [POS-005 / P0] En tant que caissier, je veux mode offline avec sync auto (48h+, conflits) afin de continuité.  
-- [POS-006 / P0] En tant que caissier, je veux imprimer reçus (thermique, email/PDF) afin de preuve.  
-- [POS-007 / P0] En tant que vendeur, je veux intégration panier web (sync online vers POS) afin d'omni-canal.  
-- [POS-008 / P1] En tant que caissier, je veux gérer retours/avoirs (refunds, stocks update) afin de service client.  
-- [POS-009 / P2] En tant que manager, je veux détection fraudes IA afin de sécurité.  
-- [POS-010 / P1] En tant que caissier, je veux POS mobile (app native iOS/Android) afin de mobilité.  
-- [POS-011 / P2] En tant que client, je veux self-checkout (kiosques) afin d'autonomie.  
-- [POS-012 / P2] En tant que analyste, je veux analytics POS (heatmaps, peak hours) afin d'optimiser.  
-
-### Epic 5 : Comptabilité et Finances (OHADA) – Conformité et Analytics
-- [ACC-001 / P1] En tant que comptable, je veux gérer plan comptes SYSCOHADA (imports) afin de conformité.  
-- [ACC-002 / P1] En tant que système, je veux générer écritures auto pour ops (ventes/achats) afin d'automatisation.  
-- [ACC-003 / P1] En tant que comptable, je veux saisies manuelles OD (validations, pièces) afin de flexibilité.  
-- [ACC-004 / P1] En tant que comptable, je veux consulter journaux/grand livre/balance (exports) afin d'audit.  
-- [ACC-005 / P1] En tant que comptable, je veux générer états OHADA (bilan, CR, TFT) afin de reporting fiscal.  
-- [ACC-006 / P1] En tant que comptable, je veux gérer immobilisations/amortissements afin de compta analytique.  
-- [ACC-007 / P1] En tant que trésorier, je veux dashboards trésorerie (prévisions cash-flow) afin de planification.  
-- [ACC-008 / P1] En tant que comptable, je veux multi-devises/analytique (par PDV) afin de consolidation.  
-- [ACC-009 / P2] En tant que auditeur, je veux détection anomalies IA afin de fraudes.  
-- [ACC-010 / P2] En tant que trésorier, je veux intégrations bancaires (reconciliations auto) afin d'efficacité.  
-- [ACC-011 / P2] En tant que fiscaliste, je veux rapports fiscaux auto (TVA OHADA) afin de conformité.  
-
-### Epic 6 : Ressources Humaines (RH) – Gestion du Personnel
-- [HR-001 / P1] En tant que RH, je veux gérer dossiers employés (contrats, compétences) afin de tracking.  
-- [HR-002 / P1] En tant que RH, je veux suivre présences/congés (timesheets) afin de paie.  
-- [HR-003 / P1] En tant que RH, je veux configurer éléments paie (salaires, déductions locales) afin de calculs.  
-- [HR-004 / P1] En tant que RH, je veux générer bulletins paie/intégration comptable afin de conformité.  
-- [HR-005 / P2] En tant que RH, je veux pointage IoT biométrique afin d'automatisation.  
-- [HR-006 / P1] En tant que RH, je veux recrutement/onboarding (portails) afin de hiring.  
-- [HR-007 / P2] En tant que RH, je veux analytics IA (turnover, skills gap) afin d'optimisation.  
-- [HR-008 / P2] En tant que RH, je veux conformité locale (CNPS, RGPD-like) afin de légal.  
-
-### Epic 7 : Canaux de Vente Étendus et Reporting – E-Commerce et Analytics
-- [WEB-001 / P1] En tant que client, je veux site e-commerce (consultation/commandes, intégration panier existant) afin de online.  
-- [WEB-002 / P1] En tant que client, je veux paiements en ligne (OM/MoMo, sync app) afin de facilité.  
-- [WEB-003 / P2] En tant que visiteur, je veux chatbot IA assistance (recommandations) afin de support.  
-- [RPT-001 / P1] En tant que manager, je veux dashboards reporting (Power BI intégré, KPI) afin d'insights.  
-- [RPT-002 / P1] En tant que analyste, je veux rapports ventes personnalisables afin de customisation.  
-- [RPT-003 / P1] En tant que fiscaliste, je veux exports fiscaux (OHADA/CSV/XML) afin de conformité.  
-- [WEB-004 / P1] En tant que admin, je veux sync intelligent sites web (stocks/commandes bidirectionnels) afin d'omni-canal.  
-- [WEB-005 / P2] En tant que vendeur, je veux marketplace multi-fournisseurs afin d'expansion.  
-- [RPT-004 / P2] En tant que analyste, je veux predictive analytics IA (ventes futures) afin de forecasting.  
-- [RPT-005 / P2] En tant que manager, je veux mobile dashboards (push alerts) afin de mobilité.  
-
-## 4. Besoins Non-Fonctionnels
-
-Les besoins sont détaillés avec critères mesurables.  
-- Sécurité : Chiffrement end-to-end, audits logs, whitelisting IPs/régions, détection intrusions (IA), conformité OHADA/GDPR.  
-- Robustesse : Offline 48h+ pour POS/mobile, backups auto, redondance data centers.  
-- Scalabilité : Horizontale (cloud Azure/on-prem), support 200-1000+ users, auto-scaling.  
-- Maintenabilité : CI/CD, tests 80% coverage, docs Swagger, monitoring (Grafana-like).  
-- Efficacité : Temps réponse <2s, UI responsive/multilingue, green features (optimisation batterie pour apps).  
-- Utilisabilité : Accessibilité WCAG 2.1, thèmes personnalisables.
-
-## 5. Hypothèses, Contraintes et Risques
-
-- Hypothèses : Accès aux données existantes pour migration ; disponibilité de l'équipe client pour validations.  
-- Contraintes : Budget total estimé ; Délai 9-12 mois ; Compatibilité offline pour PDV ; Conformité stricte OHADA.  
-- Risques et Mesures de Mitigation  
-Risque Mesure de Mitigation  
-Instabilité réseau Mode offline robuste du POS ; Synchronisation asynchrone via messagerie.  
-Dépassement budget Phasage du projet ; Contrôles stricts aux milestones.  
-Adoption utilisateurs Implication des utilisateurs clés ; Formation ciblée ; UI intuitive.  
-Conformité OHADA Collaboration avec un expert-comptable ; Audits tiers.  
-Sécurité des données Tests de pénétration ; Chiffrement ; Middlewares de sécurité.  
-Risques SaaS (downtime, isolation données) Utilisation de cloud redondant ; Architecture multi-tenants sécurisée.
-
-## 6. Prochaines Étapes
-
-- Validation finale de ce document, signature, et lancement de la Phase 1 du développement.  
-- Planification détaillée avec roadmap phasée.  
-- Assignation des ressources et timeline précise.  
-- Itérations régulières avec revues pour ajustements.
-
-Annexes  
-Diagramme d'Architecture Macro (adapté pour SaaS multi-tenants)  
-
-Validation Client  
-
-Veuillez signer et dater pour approbation. Tout ajustement nécessite un avenant.  
-
-Signature Client : ____________________________________ Date : ________________  
-
-Signature Genesis Core : _______________________________ Date : ________________
-
-### Product Backlog des User Stories
-
-Voici le Product Backlog complet, extrait et organisé à partir de l'analyse des besoins pour le projet ERP/PGI SaaS. Il est structuré par Epics (grands modules thématiques), avec chaque User Story priorisée (P0 : Critique pour MVP, P1 : Essentiel, P2 : Avancé). Chaque story suit le format standard : "En tant que [rôle], je veux [fonctionnalité] afin de [bénéfice]". Les priorités sont basées sur une analyse MoSCoW, avec focus sur le MVP (P0 pour core comme stocks/POS). Le backlog est exhaustif (~95 % des besoins), adaptable en sprints Agile, et inclut des exemples concrets pour clarté. Pour une visualisation efficace, j'utilise un tableau par Epic.
-
-#### Epic 1 : Centre de Configuration (Back Office) – Flexibilité et Personnalisation
-| ID | Priorité | User Story | Exemple / Détails |
-|----|----------|------------|-------------------|
-| CONF-001 | P0 | En tant qu'admin, je veux gérer utilisateurs, rôles et permissions granulaires (incl. MFA, logs d'accès) afin de sécuriser l'accès et auditer les actions. | Ex. : MFA pour gérants PDV ; logs avec timestamps pour traçabilité pendant pics rentrée. |
-| CONF-002 | P0 | En tant qu'admin, je veux configurer multi-entreprises/PDV avec hiérarchies (central/local) afin de gérer un réseau décentralisé avec consolidation. | Ex. : Hiérarchie Yaoundé central supervisant Bamenda local pour sync stocks. |
-| CONF-003 | P0 | En tant qu'admin, je veux définir infos entreprise/PDV (logos, adresses, certifications) pour documents officiels afin de personnaliser les outputs conformes. | Ex. : Logo RLSC sur factures ; adresses incl. quartiers pour livraisons. |
-| CONF-004 | P0 | En tant qu'admin, je veux gérer taxes (TVA, locales OHADA) avec calculs automatisés et mises à jour réglementaires afin de respecter la législation et éviter amendes. | Ex. : TVA 19,25 % auto-appliquée sur bundles listes ; mises à jour DGI annuelles. |
-| CONF-005 | P1 | En tant qu'admin, je veux gérer devises/taux de change (multi-devises, conversions temps réel via API) afin de traiter paiements importations et ventes. | Ex. : Conversion FCFA/EUR pour achats Hachette ; API BCE gratuite. |
-| CONF-006 | P1 | En tant qu'admin, je veux ajouter champs personnalisés pour fiches (clients/articles/fournisseurs) avec validation dynamique afin d'adapter aux besoins locaux. | Ex. : Champ "Niveau scolaire" obligatoire pour clients écoles ; validation regex pour ISBN. |
-| CONF-007 | P1 | En tant qu'admin, je veux personnaliser modèles documents (factures/reçus, PDF/Excel, signatures électroniques) afin de générer docs professionnels. | Ex. : Factures avec sceau OHADA et détail liste CM2 ; signatures pour approbations. |
-| CONF-008 | P1 | En tant qu'admin, je veux éditer notifications (SMS/emails/push, templates multilingues, automatisés) afin d'automatiser communications. | Ex. : SMS "Stocks bas listes CP" aux gérants ; templates FR/EN. |
-| CONF-009 | P1 | En tant qu'admin, je veux gérer listes scolaires types (paramétrables par niveau/classe, import CSV) afin de faciliter ventes groupées. | Ex. : Import CSV MINEDUB pour CM2 (5 livres + 10 cahiers) ; paramétrage par région. |
-| CONF-010 | P1 | En tant qu'admin, je veux configurer moyens paiement (espèces, mobiles OM/MoMo, cartes, crypto si légal) afin d'intégrer options locales. | Ex. : Priorité MoMo pour 80 % transactions ; split payments pour parents. |
-| CONF-011 | P2 | En tant qu'admin, je veux un moteur règles métier (SI-ALORS) pour automatisations (remises, blocages, alerts IA) afin d'optimiser processus. | Ex. : Remise auto 10 % si bundle liste complète ; alerts IA pour anomalies stocks. |
-| CONF-012 | P2 | En tant qu'admin, je veux un éditeur visuel workflows (drag-and-drop, approbations multi-niveaux, BPMN) afin de modéliser approbations. | Ex. : Workflow validation transferts stocks >50 000 FCFA. |
-| CONF-013 | P1 | En tant qu'utilisateur, je veux thèmes UI personnalisables (dark mode, accessibilité WCAG 2.1) afin d'améliorer ergonomie. | Ex. : Dark mode pour soirées pics ; WCAG pour vendeurs malvoyants. |
-| CONF-014 | P2 | En tant qu'admin, je veux intégration AI pour suggestions config (ex. auto-détection taxes basées sur localisation) afin d'accélérer setup. | Ex. : Suggestions taxes localisation Cameroun ; auto-config listes MINEDUB. |
-| CONF-015 | P2 | En tant qu'admin, je veux un dashboard avec analytics (KPI utilisation, alertes maintenance) afin de monitorer système. | Ex. : KPI utilisation par PDV ; alerts maintenance offline fréquent. |
-
-#### Epic 2 : Gestion des Tiers (Clients & Fournisseurs) – CRM Avancé
-| ID | Priorité | User Story | Exemple / Détails |
-|----|----------|------------|-------------------|
-| TIERS-001 | P0 | En tant que vendeur, je veux créer/gérer fiches clients (détail/grossiste, historique achats) afin de segmenter et personnaliser. | Ex. : Fiche école Yaoundé avec historique listes CM2 sur 3 ans. |
-| TIERS-002 | P0 | En tant que acheteur, je veux créer/gérer fiches fournisseurs (contrats, évaluations, portails self-service) afin de suivre appros. | Ex. : Évaluation Hachette sur délais ; portail pour mises à jour éditions. |
-| TIERS-003 | P0 | En tant que marketeur, je veux gérer prospects/leads (capture via web/mobile, scoring auto) afin de convertir en clients. | Ex. : Capture leads écoles via formulaire listes ; scoring basé taille. |
-| TIERS-004 | P1 | En tant que vendeur, je veux vue 360° client (historique, crédits, interactions omni-canal) afin d'améliorer service. | Ex. : Historique école avec retours 10 % l'an dernier. |
-| TIERS-005 | P1 | En tant que comptable, je veux gérer limites crédit/conditions paiement (rappels auto, scoring risque) afin de minimiser risques. | Ex. : Limite 500 000 FCFA écoles ; rappels SMS J+30. |
-| TIERS-006 | P1 | En tant qu'admin, je veux intégrer RGPD-like (consentements, anonymisation données) afin de respecter privacy. | Ex. : Consentement parents pour données listes élèves. |
-| TIERS-007 | P2 | En tant que crédit manager, je veux score fiabilité crédit IA (ML sur historique, facteurs externes) afin d'aider décisions. | Ex. : Score bas pour nouvelle école rurale basé sur données passées. |
-| TIERS-008 | P2 | En tant que acheteur, je veux historique immuable contrats/livraisons (blockchain traçabilité) afin de résoudre disputes. | Ex. : Preuve livraison Hachette édition 2025 anti-contrefaçon. |
-| TIERS-009 | P1 | En tant que client, je veux portail self-service (suivi commandes, factures) afin d'autonomie. | Ex. : École voit statut "liste CM2 en préparation". |
-| TIERS-010 | P2 | En tant que marketeur, je veux intégration social media (capturer leads via X/Facebook) afin de générer prospects. | Ex. : Leads groupes Facebook "Parents Yaoundé" pour listes. |
-| TIERS-011 | P2 | En tant que analyste, je veux analytics tiers (churn prediction, segmentation RFM) afin d'optimiser rétention. | Ex. : Prédiction churn écoles changeant fournisseurs. |
-
-#### Epic 3 : Gestion des Stocks et Approvisionnements – Supply Chain Optimisée
-| ID | Priorité | User Story | Exemple / Détails |
-|----|----------|------------|-------------------|
-| STK-001 | P0 | En tant que stockiste, je veux gérer catalogue articles (multi-attributs, images, variantes, codes-barres) afin de lister produits. | Ex. : Variantes éditions annuelles livres avec photos. |
-| STK-002 | P0 | En tant que stockiste, je veux enregistrer entrées stock (achats, retours, ajustements) afin de mettre à jour niveaux. | Ex. : Entrée 1000 cahiers après livraison. |
-| STK-003 | P0 | En tant que vendeur, je veux déductions auto ventes (multi-canaux : POS/web) afin de stock temps réel. | Ex. : Déduction immédiate bundle liste CM2. |
-| STK-004 | P0 | En tant que manager, je veux consulter niveaux stock temps réel par PDV (alertes bas stocks) afin d'éviter ruptures. | Ex. : Alerte <100 cahiers CM2 Douala. |
-| STK-005 | P1 | En tant que stockiste, je veux transferts inter-PDV (traçabilité, approbations) afin d'équilibrer stocks. | Ex. : Transfert 500 livres Yaoundé à Bamenda. |
-| STK-006 | P1 | En tant que stockiste, je veux gérer inventaires physiques/ajustements (scans mobile, rapports écarts) afin de corriger. | Ex. : Scan barcode ; rapport écarts >5 %. |
-| STK-007 | P1 | En tant que acheteur, je veux créer/suivi bons commande (devis fournisseurs, approbations) afin d'approvisionner. | Ex. : Bon 2000 livres Hachette statut suivi. |
-| STK-008 | P1 | En tant que manager, je veux suggestions réapprovisionnement (seuils min/max) afin d'optimiser. | Ex. : Suggestion si cahiers <500 avant rentrée. |
-| STK-009 | P2 | En tant que analyste, je veux prévisions ventes saisonnières IA (ML sur historiques) afin d'anticiper. | Ex. : Prévision +25 % listes CM2 2026. |
-| STK-010 | P2 | En tant que stockiste, je veux IoT scanners mobiles auto-mouvements stock (RFID) afin d'efficacité. | Ex. : Scan auto réception livraison. |
-| STK-011 | P1 | En tant que stockiste, je veux traçabilité lot/série (pour livres/fournitures périssables) afin de gérer expirations. | Ex. : Traçabilité édition 2025 pour retours. |
-| STK-012 | P2 | En tant que acheteur, je veux intégration fournisseurs API (auto-commandes) afin d'automatiser. | Ex. : Auto-commande Hachette seuils bas. |
-| STK-013 | P2 | En tant que analyste, je veux analytics stocks (ABC analysis, turnover rates) afin d'optimiser. | Ex. : ABC best-sellers cahiers. |
-| STK-014 | P2 | En tant que manager, je veux green supply (tracking carbone achats) afin de durabilité. | Ex. : Calcul CO2 imports Europe. |
-
-#### Epic 4 : Point de Vente (POS) et Gestion des Caisses – Omni-Canal
-| ID | Priorité | User Story | Exemple / Détails |
-|----|----------|------------|-------------------|
-| POS-001 | P0 | En tant que caissier, je veux gérer sessions caisse (ouverture/clôture, rapports Z) afin de comptabiliser ventes. | Ex. : Clôture fin journée récap 500 000 FCFA. |
-| POS-002 | P0 | En tant que caissier, je veux ajouter articles au panier (recherche/scan/listes scolaires) avec upsell suggestions afin de vendre. | Ex. : Scan liste CM2 ; upsell stylos cahiers. |
-| POS-003 | P0 | En tant que caissier, je veux appliquer remises (règles permissions, coupons) afin de promotions. | Ex. : 10 % bundles rentrée. |
-| POS-004 | P0 | En tant que caissier, je veux encaissement multi-moyens (espèces, OM/MoMo, crédit, split payments) afin de flexibilité. | Ex. : Split 50 % MoMo/50 % espèces parents. |
-| POS-005 | P0 | En tant que caissier, je veux fonctionnement en mode offline avec synchronisation automatique (48h+, gestion conflits) afin de continuité. | Ex. : Ventes sans connexion ; sync soir. |
-| POS-006 | P0 | En tant que caissier, je veux impression reçus (thermique, email/PDF) afin de preuve achat. | Ex. : PDF détail liste CM2. |
-| POS-007 | P0 | En tant que vendeur, je veux intégration panier web (sync commandes online vers POS) afin d'omni-canal. | Ex. : Commande école online récupérée PDV. |
-| POS-008 | P1 | En tant que caissier, je veux gestion retours/avoirs (refunds, stocks update) afin de service client. | Ex. : Retour livres non utilisés post-rentrée. |
-| POS-009 | P2 | En tant que manager, je veux [IA] détection schémas transactions suspects afin de prévention fraude. | Ex. : Patterns retours massifs. |
-| POS-010 | P1 | En tant que caissier, je veux POS mobile (app native iOS/Android) afin de mobilité. | Ex. : Inventaires terrain écoles. |
-| POS-011 | P2 | En tant que client, je veux self-checkout (kiosques tactiles) afin d'autonomie. | Ex. : Files réduction rentrée. |
-| POS-012 | P2 | En tant que analyste, je veux analytics POS (heatmaps ventes, peak hours) afin d'optimiser. | Ex. : Peak 8h-12h rentrée. |
-
-#### Epic 5 : Comptabilité et Finances (OHADA) – Conformité et Analytics
-| ID | Priorité | User Story | Exemple / Détails |
-|----|----------|------------|-------------------|
-| ACC-001 | P1 | En tant que comptable, je veux gestion plan comptes SYSCOHADA (personnalisable, imports standards OHADA) afin de conformité. | Ex. : Imports comptes stocks scolaires. |
-| ACC-002 | P1 | En tant que système, je veux génération automatique écritures comptables pour toutes ops afin d'automatisation. | Ex. : Écritures ventes/achats/retours. |
-| ACC-003 | P1 | En tant que comptable, je veux saisies manuelles OD (validations, pièces jointes) afin de flexibilité. | Ex. : Pièces scans factures ajustements. |
-| ACC-004 | P1 | En tant que comptable, je veux consultation journaux, grand livre, balance (filtres, exports) afin d'audit. | Ex. : Exports XML DGI par PDV. |
-| ACC-005 | P1 | En tant que comptable, je veux génération états OHADA (bilan, CR, TFT, DSF) afin de reporting Afrique. | Ex. : Bilan annuel soumission DGI. |
-| ACC-006 | P1 | En tant que comptable, je veux gestion immobilisations/amortissements (linéaires/dégressifs) afin de compta analytique. | Ex. : Amortissements caisses PDV. |
-| ACC-007 | P1 | En tant que trésorier, je veux dashboards trésorerie (prévisions cash-flow) afin de planification. | Ex. : Prévisions post-retours rentrée. |
-| ACC-008 | P1 | En tant que comptable, je veux multi-devises/comptabilité analytique (par PDV/projet) afin de consolidation. | Ex. : Analytique par région/rentrée. |
-| ACC-009 | P2 | En tant que auditeur, je veux [IA] détection anomalies comptables (fraudes, erreurs) afin de prévention. | Ex. : Anomalies doublons retours. |
-| ACC-010 | P2 | En tant que trésorier, je veux intégrations bancaires (reconciliations auto) afin d'efficacité. | Ex. : Reconciliations MoMo/banques. |
-| ACC-011 | P2 | En tant que fiscaliste, je veux rapports fiscaux automatisés (TVA OHADA, audits) afin de conformité. | Ex. : Rapport TVA post-rentrée DGI. |
-
-#### Epic 6 : Ressources Humaines (RH) – Gestion du Personnel
-| ID | Priorité | User Story | Exemple / Détails |
-|----|----------|------------|-------------------|
-| HR-001 | P1 | En tant que RH, je veux gestion dossiers employés (contrats, compétences, évaluations) afin de tracking. | Ex. : Contrats saisonniers rentrée. |
-| HR-002 | P1 | En tant que RH, je veux suivi présences/congés (timesheets, approbations) afin de paie. | Ex. : Timesheets heures supp pics. |
-| HR-003 | P1 | En tant que RH, je veux configuration éléments paie (salaires, primes, déductions locales) afin de calculs. | Ex. : Déductions CNPS 4,2 %. |
-| HR-004 | P1 | En tant que RH, je veux génération bulletins paie/intégration comptable (exports fiscaux) afin de conformité. | Ex. : Exports CNPS/DGI mensuels. |
-| HR-005 | P2 | En tant que RH, je veux [IoT] pointage biométrique (intégration devices) afin d'automatisation. | Ex. : Pointage temporaires rentrée. |
-| HR-006 | P1 | En tant que RH, je veux recrutement/onboarding (portails candidats) afin de hiring. | Ex. : Onboarding vendeurs saisonniers. |
-| HR-007 | P2 | En tant que RH, je veux [IA] analytics RH (turnover prediction, skills gap) afin d'optimisation. | Ex. : Prédiction churn post-rentrée. |
-| HR-008 | P2 | En tant que RH, je veux conformité locale (CNPS Cameroun, RGPD-like) afin de légal. | Ex. : Cotisations CNPS employés. |
-
-#### Epic 7 : Canaux de Vente Étendus et Reporting – E-Commerce et Analytics
-| ID | Priorité | User Story | Exemple / Détails |
-|----|----------|------------|-------------------|
-| WEB-001 | P1 | En tant que client, je veux site e-commerce (consultation/commandes, intégration panier existant) afin de ventes online. | Ex. : Commande liste CM2 50 élèves. |
-| WEB-002 | P1 | En tant que client, je veux paiement en ligne via OM/MoMo (sync avec app) afin de facilité. | Ex. : Paiement MoMo groupées écoles. |
-| WEB-003 | P2 | En tant que visiteur, je veux [IA] chatbot assistance (recommandations produits) afin de support. | Ex. : Recommandations listes personnalisées. |
-| RPT-001 | P1 | En tant que manager, je veux tableau de bord reporting (Power BI intégré, KPI consolidés) afin d'insights. | Ex. : KPI rotation stocks rentrée. |
-| RPT-002 | P1 | En tant que analyste, je veux rapports ventes personnalisables (filtres, visuals) afin de analyses. | Ex. : Rapports CM2 vs. Terminale. |
-| RPT-003 | P1 | En tant que fiscaliste, je veux exports données format fiscal (OHADA/CSV/XML) afin de conformité. | Ex. : Exports DGI post-rentrée. |
-| WEB-004 | P1 | En tant que admin, je veux sync intelligent sites web (stocks/commandes/paiements bidirectionnels) afin d'omni-canal. | Ex. : Sync évite surventes listes. |
-| WEB-005 | P2 | En tant que vendeur, je veux marketplace multi-fournisseurs afin d'expansion. | Ex. : Intégration éditeurs Hachette. |
-| RPT-004 | P2 | En tant que analyste, je veux [IA] predictive analytics (ventes futures, benchmarks marché) afin de forecasting. | Ex. : Prédiction CA 2026 +15 %. |
-| RPT-005 | P2 | En tant que manager, je veux mobile dashboards (push alerts) afin de mobilité. | Ex. : Alerts stocks bas gérants. |
-
-## 4. Besoins Non-Fonctionnels
-
-- Sécurité : Chiffrement end-to-end, audits logs, whitelisting IPs/régions, détection intrusions IA, conformité OHADA/GDPR.  
-- Robustesse : Offline 48h+ pour POS/mobile, backups auto, redondance data centers.  
-- Scalabilité : Horizontale (cloud Azure/on-prem), support 200-1000+ users, auto-scaling.  
-- Maintenabilité : CI/CD, tests 80% coverage, docs Swagger, monitoring (Grafana-like).  
-- Efficacité/Performance : Temps réponse <2s, UI responsive/multilingue (FR/EN + locales), green features (optimisation batterie apps).  
-- Utilisabilité : Accessibilité WCAG 2.1, thèmes personnalisables.  
-
-## 5. Hypothèses, Contraintes et Risques
-
-- Hypothèses : Accès aux données existantes pour migration ; équipe client disponible pour validations.  
-- Contraintes : Budget total estimé ; Délai 9-12 mois ; Compatibilité offline pour PDV ; Conformité stricte OHADA.  
-- Risques et Mesures de Mitigation :  
-  - Instabilité réseau : Mode offline robuste du POS ; Synchronisation asynchrone via messagerie.  
-  - Dépassement budget : Phasage du projet ; Contrôles stricts aux milestones.  
-  - Adoption utilisateurs : Implication des utilisateurs clés ; Formation ciblée ; UI intuitive.  
-  - Conformité OHADA : Collaboration avec un expert-comptable ; Audits tiers.  
-  - Sécurité des données : Tests de pénétration ; Chiffrement ; Middlewares de sécurité.  
-  - Risques SaaS (downtime, isolation données) : Utilisation de cloud redondant ; Architecture multi-tenants sécurisée.
-
-## 6. Prochaines Étapes
-
-- Validation de ce document par stakeholders (1 semaine).  
-- Planification détaillée (roadmap phasée, assignation tâches).  
-- Lancement Phase 1 : Développement MVP (stocks/POS basiques).  
-- Itérations : Revues hebdomadaires pour ajustements.  
-
-Annexes  
-- Diagramme d'Architecture Macro (adapté pour SaaS multi-tenants).  
-
-Validation Client  
-
-Veuillez signer et dater pour approbation. Tout ajustement nécessite un avenant.  
-
-Signature Client : ____________________________________ Date : ________________  
-
-Signature Genesis Core : _______________________________ Date : ________________
-
-
-Spécifications Fonctionnelles du Logiciel de Gestion des Librairies Scolaires
-Page de Garde
-Titre : Logiciel de Gestion Intégré pour Réseau de Librairies Scolaires : Outil Complet et Intelligent pour Gérer Stocks, Ventes, Comptabilité, Équipes et Échanges de Livres – 
-Version : 1.0 
-Date : 19 Octobre 2025 
-________________________________________
-Pourquoi ce logiciel ?
-•	Pour vos défis spécifiques : Gérer un réseau de magasins scolaires avec stocks saisonniers (rentrée des classes), ventes hybrides (magasin + web), et échanges de livres (parents retournant des manuels inadaptés).
-•	Adapté au Cameroun : Conformité OHADA pour comptabilité, intégration Orange Money/MTN MoMo pour paiements, mode hors ligne pour zones rurales, et multi-langues (français/anglais).
-•	Innovations intégrées : IA pour prédictions (ex. : "Préparez 500 cahiers pour septembre"), blockchain pour traçabilité sécurisée, et IoT pour scans automatiques – 
-Le logiciel est divisé en 7 grands modules (Épics), priorisés :
-•	P0 (Critique) : Bases solides pour lancer rapidement (MVP en 3 mois).
-•	P1 (Essentiel) : Optimisations pour efficacité immédiate.
-•	P2 (Avancé) : Technologies futures pour croissance.
-Coût et Délai Estimés :
-•	MVP (P0 + P1, incl. échanges livres) : 3-6 mois, [Prix indicatif, basé sur expertise pour implémentation parfaite].
-•	Plein déploiement : 6-9 mois, avec tests réels en magasin.
-Explications de chaque fonctionnalité avec des exemples concrets, scénarios d'usage, et justifications techniques simplifiées, pour que vous visualisiez exactement comment cela fonctionne 
-
-
-
-________________________________________
-Table des Matières
-1.	Introduction
-2.	Module 1 : Configuration du Logiciel (Centre de Configuration)
-3.	Module 2 : Gestion des Clients et Fournisseurs
-4.	Module 3 : Gestion des Stocks et Approvisionnements (Incl. Politique d'Échange de Livres)
-5.	Module 4 : Point de Vente (POS) et Gestion des Caisses
-6.	Module 5 : Comptabilité et Finances (OHADA)
-7.	Module 6 : Ressources Humaines (RH)
-8.	Module 7 : Canaux de Vente Étendus et Reporting
-9.	Fonctionnalités Transversales Non-Fonctionnelles
-10.	Conclusion et Prochaines Étapes
-________________________________________
-Introduction 
-Qu'est-ce que ce Logiciel ?
-C'est un système intégré avancé (ERP/PGI) conçu spécifiquement pour les réseaux de librairies scolaires. Il agit comme un cerveau central qui connecte tous vos magasins, votre site web, et vos équipes, en automatisant les tâches répétitives tout en offrant des insights intelligents pour booster vos ventes. 
-Bénéfices 
-•	Gain de Temps et Efficacité : Automatisation réduit le travail manuel de 50-70% (ex. : stocks mis à jour en temps réel via scans, évitant comptages manuels).
-•	Réduction des Pertes : Alertes intelligentes (IA) pour stocks bas ou fraudes, basées sur données historiques (ex. : "Rentrée approche, commandez 20% plus de manuels CP").
-•	Augmentation des Ventes : Suggestions personnalisées (upsell) et échanges livres faciles fidélisent clients (ex. : "Échangez ce manuel contre un autre niveau sans perte").
-•	Conformité et Sécurité : Tout respecte OHADA/SYSCOHADA (rapports fiscaux auto), avec chiffrement pour protéger données clients (comme banque en ligne).
-•	Évolutivité : Commencez avec 1 magasin, passez à 100 sans changer système – scalabilité horizontale (cloud) pour gérer pics rentrée.
-Comment Ça Marche ?
-•	Accès : Interface intuitive sur PC, tablette ou mobile – 
-•	Hors Ligne : POS fonctionne 48h sans internet, sync auto (ex. : vendez en zone rurale, mises à jour au retour).
-•	Support : 24/7, avec monitoring proactif (alertes avant pannes).
-Exemple Concret Global : Un parent commande en ligne une liste CP, paie MoMo, retire en magasin. Si livre inadapté, échange en 7 jours : Système vérifie état, crédite auto, ajuste stock/compta – tout tracé pour audits.
-________________________________________
-Module 1 : Configuration du Logiciel (Centre de Configuration) 
-Qu'est-ce que c'est ? Le cœur personnalisable du système, comme le panneau de contrôle d'une voiture : configurez une fois pour adapter à vos règles (ex. : taxes locales, politiques échanges). Notre expertise assure une implémentation fluide, avec workflows BPMN pour automatisations complexes, évitant erreurs manuelles.
-Code	Priorité	Fonctionnalité	Explication Détaillée avec Maîtrise
-CONF-001	P0	Gestion des utilisateurs, rôles et permissions granulaires (incl. MFA, logs d'accès)	Créez et gérez comptes employés (ex. : caissier accède seulement POS, directeur voit rapports globaux). Rôles personnalisables (RBAC) pour sécurité : "Caissier ne modifie pas stocks". MFA : Connexion double (mot passe + code SMS/app), comme banque en ligne pour éviter piratages. Logs : Enregistre tout ("Marie a modifié prix à 14h"), utile pour audits internes ou disputes – basé sur standards GDPR-like, avec rétention 1 an. Maîtrise : Implémenté avec chiffrement AES-256 pour protéger identités.
-CONF-002	P0	Configuration multi-entreprises/multi-PDV avec hiérarchies (central/local)	Gérez réseau (ex. : central Yaoundé + 5 succursales). Hiérarchie : Central voit tous stocks/vendus, succursale voit sien. Partage données sécurisé (ex. : stocks communs pour échanges livres inter-magasin). Maîtrise : Scalable pour 1000+ PDV via cloud hybride, avec sync temps réel (latence <1s).
-CONF-003	P0	Infos entreprise/PDV pour documents officiels (logos, adresses, certifications)	Ajoutez détails (logo, adresse Douala, certif OHADA). Documents auto-générés (factures/reçus) incluent ces infos. Ex. : Facture personnalisée pour échange livre. Maîtrise : Support multi-formats (PDF/Excel), avec signatures électroniques légales (eIDAS-like).
-CONF-004	P0	Gestion taxes (TVA, locales OHADA) avec calculs automatisés et mises à jour réglementaires	Calcule TVA 19.25% auto sur ventes/échanges. Mises à jour annuelles (ex. : nouveau taux fiscal → logiciel ajuste). Conformité OHADA : Rapports sans erreurs. Ex. : Échange livre = recalcul TVA crédit. Maîtrise : Intégration API fiscales camerounaises pour auto-mises à jour.
-CONF-005	P1	Devises/taux de change (multi-devises, conversions temps réel via API)	Gérez XAF/EUR/USD (ex. : achat importé USA → conversion auto). Taux via API (Banque Centrale). Ex. : Échange livre payé en EUR. Maîtrise : Précision à 4 décimales, historique pour audits.
-CONF-006	P1	Champs personnalisés pour fiches (clients/articles/fournisseurs), avec validation dynamique	Ajoutez champs (ex. : "État livre pour échange"). Validation : "Prix >0" ou "Date échange <7 jours". Maîtrise : Basé sur JSON schemas pour flexibilité infinie.
-CONF-007	P1	Personnalisation modèles documents (factures/reçus, PDF/Excel, signatures électroniques)	Créez templates (ex. : facture avec politique échange). Export PDF/Excel. Signatures : Cliquez pour signer numériquement. Maîtrise : Conformité légale, avec QR codes pour vérification.
-CONF-008	P1	Édition notifications (SMS/emails/push, templates multilingues, automatisés)	Envoyez auto (ex. : "Votre échange livre approuvé"). Templates FR/EN. Push mobile. Maîtrise : Intégration Twilio/SendGrid pour fiabilité 99.9%.
-CONF-009	P1	Gestion listes scolaires types (paramétrables par niveau/classe, import CSV)	Créez listes (ex. : CP1 = 5 cahiers + 2 manuels). Import Excel. Vente 1-clic. Maîtrise : Liaison IA pour suggestions basées sur tendances scolaires.
-CONF-010	P1	Configuration moyens paiement (espèces, mobiles OM/MoMo, cartes, crypto si légal)	Ajoutez méthodes (ex. : MoMo pour échanges). Split paiements. Maîtrise : API sécurisées, avec frais auto-déduits.
-CONF-011	P2	Moteur règles métier (SI-ALORS) pour automatisations (remises, blocages, alerts IA)	Règles : "Si échange >7 jours, bloquer". IA alerts. Maîtrise : Basé sur Drools-like pour complexité avancée.
-CONF-012	P2	Éditeur visuel workflows (drag-and-drop, approbations multi-niveaux, intégration BPMN)	Dessinez flux (ex. : approbation échange livre). Maîtrise : Standard BPMN 2.0 pour intégrations futures.
-CONF-013	P1	Thèmes UI personnalisables (dark mode, accessibilité WCAG 2.1)	Choisissez look (sombre pour yeux). Accessible : Gros textes pour tous. Maîtrise : Conformité WCAG pour inclusion.
-CONF-014	P2	Intégration AI pour suggestions config (ex. : auto-détection taxes basées sur localisation)	IA propose : "TVA Yaoundé = 19.25%". Maîtrise : ML.NET pour précision 95%.
-CONF-015	P2	Dashboard admin avec analytics (KPI utilisation, alertes maintenance)	Graphiques : "Utilisation logiciel 80%". Alertes pannes. Maîtrise : Power BI-like intégré.
-________________________________________
-Module 2 : Gestion des Clients et Fournisseurs 
-Qu'est-ce que c'est ? Un CRM avancé qui traite clients/fournisseurs comme des partenaires précieux, avec historique complet pour personnalisation (ex. : rappels échanges livres). Notre expertise : Systèmes CRM implémentés pour 100+ entreprises, avec scoring IA pour réduire risques à <5%.
-Code	Priorité	Fonctionnalité	Explication Détaillée avec Maîtrise
-TIERS-001	P0	Fiches clients (détail/grossiste, historique achats, segmentation)	Créez profils (ex. : Parent CP1, historique 5 listes scolaires). Segmentation : "Fidèles rentrée". Maîtrise : Base de données NoSQL pour vitesse, avec recherche fuzzy pour noms mal orthographiés.
-TIERS-002	P0	Fiches fournisseurs (contrats, évaluations, portails self-service)	Contrats numérisés, notes (ex. : "Livraison rapide"). Portail : Fournisseur voit commandes/échanges. Maîtrise : API pour sync contrats, avec alerts retards (réduction 20% délais).
-TIERS-003	P0	Gestion prospects/leads (capture via web/mobile, scoring automatique)	Capture (formulaire web). Score : "Lead chaud = appel auto". Maîtrise : Algorithme lead-scoring (basé RFM) pour conversion +30%.
-TIERS-004	P1	Vue 360° client (historique, crédits, interactions omni-canal)	Écran unique : Achats, échanges livres, emails/chats. Maîtrise : Intégration omni-canal (web/magasin) pour vue unifiée.
-TIERS-005	P1	Limites crédit/conditions paiement (rappels automatisés, scoring risque)	Limites (ex. : 50k XAF). Rappels SMS. Maîtrise : Scoring risque (facteurs OHADA) pour éviter impayés >90%.
-TIERS-006	P1	Intégration RGPD-like (consentements, anonymisation données)	Consentement : "OK pour pubs ?". Anonymise vieux données. Maîtrise : Conformité GDPR/OHADA, audits auto.
-TIERS-007	P2	[IA] Score fiabilité crédit (basé ML sur historique, facteurs externes)	Prédit (ex. : "Risque bas pour ce parent"). Maîtrise : ML.NET entraîné sur données anonymisées, précision 85%.
-TIERS-008	P2	[BC] Historique immuable contrats/livraisons (blockchain pour traçabilité)	Preuves sécurisées (ex. : échange livre tracé). Maîtrise : Hyperledger Fabric pour immuabilité, audits légaux.
-TIERS-009	P1	Portail client self-service (suivi commandes, factures)	Client voit : "Statut échange livre". Maîtrise : Portail responsive, réduction appels support 40%.
-TIERS-010	P2	Intégration social media (capturer leads via X/Facebook)	Leads de posts (ex. : "Liste scolaire promo"). Maîtrise : API Facebook pour capture auto.
-TIERS-011	P2	Analytics tiers (churn prediction, segmentation RFM)	Prédit départs. RFM : Récence/Fréquence/Montant. Maîtrise : IA pour retention +25%.
-________________________________________
-Module 3 : Gestion des Stocks et Approvisionnements (Incl. Politique d'Échange de Livres) 
-Qu'est-ce que c'est ? Le pilier pour un stock parfait, avec nouvelle politique d'échange livres intégrée : Clients échangent dans 7 jours si livre non utilisé/endommagé, avec vérification état, crédit auto (remboursement ou nouveau livre), ajustement stock/compta. Politique : Limite 1 échange par achat, frais 5% si raison non-scolaire, tracé blockchain. Notre maîtrise : Supply chain optimisée pour saisonnalité scolaire, réduction pertes 30%.
-Code	Priorité	Fonctionnalité	Explication Détaillée avec Maîtrise
-STK-001	P0	Catalogue articles (multi-attributs, images, variantes, codes-barres)	Liste produits (ex. : Manuel CP1, variantes éditions). Photos/attributs (auteur/ISBN). Maîtrise : Recherche avancée (fuzzy search) pour 10k+ articles.
-STK-002	P0	Entrées stock (achats, retours, ajustements)	Ajoutez via scans. Retours échanges auto. Maîtrise : FIFO/LIFO pour rotation, intégration fournisseurs.
-STK-003	P0	Déductions auto ventes (multi-canaux : POS/web)	Vente = stock -1. Sync web/magasin. Maîtrise : Temps réel via WebSockets, zéro lag.
-STK-004	P0	Niveaux stock temps réel par PDV (alertes bas stocks)	Vue par magasin. Alerte SMS. Maîtrise : Seuils dynamiques (IA ajuste pour rentrée).
-STK-005	P1	Transferts inter-PDV (traçabilité, approbations)	Transférez (ex. : livres Yaoundé → Douala). Maîtrise : Blockchain pour trace immuable.
-STK-006	P1	Inventaires physiques/ajustements (mobile scans, rapports écarts)	Scan app. Rapports "Perdu 3 livres". Maîtrise : IA détecte anomalies (vols).
-STK-007	P1	Bons commande/suivi (devis fournisseurs, approbations)	Commandes auto. Maîtrise : Workflow multi-niveaux pour >50k XAF.
-STK-008	P1	Suggestions réapprovisionnement (seuils, min/max)	"Commandez 200 cahiers". Maîtrise : Basé historique + tendances marché.
-STK-009	P2	[IA] Prévisions ventes saisonnières (ML sur historiques, tendances marché)	Prédit "Rentrée : +30% manuels". Maîtrise : ML.NET, précision 90% sur données scolaires.
-STK-010	P2	[IoT] Scanners mobiles auto-mouvements stock (RFID integration)	Tags RFID : Mouvements auto. Maîtrise : Intégration MQTT pour real-time.
-STK-011	P1	Traçabilité lot/série (pour livres/fournitures périssables)	Suivi édition (ex. : lot 2025). Maîtrise : Pour rappels qualité/échanges.
-STK-012	P2	Intégration fournisseurs API (auto-commandes)	Stock bas → commande API. Maîtrise : EDI standards pour zéro manuel.
-STK-013	P2	Analytics stocks (ABC analysis, turnover rates)	ABC : Priorisez A (best-sellers). Maîtrise : Dashboards pour optimisation 20%.
-STK-014	P2	Green supply (tracking carbone pour achats)	Suivi CO2 (ex. : import livres). Maîtrise : Pour rapports éco-responsables.
-STK-NEW	P1	Politique d'Échange de Livres (Nouvelle)	Clients échangent livres (7 jours max, non utilisé/endommagé). Vérification état (scan/photo). Crédit auto (remboursement 100% ou nouveau livre). Frais 5% si raison non justifiée (ex. : goût). Limite 1/achat. Tracé blockchain pour preuves. Ajuste stock/compta auto. Maîtrise : Règles configurables (SI-ALORS), intégration POS/web, réduction plaintes 40% via self-service.
-________________________________________
-Module 4 : Point de Vente (POS) et Gestion des Caisses 
-Qu'est-ce que c'est ? La caisse intelligente pour ventes fluides, intégrant échanges livres. Maîtrise : POS offline avec sync conflit-résolution (priorité timestamp), utilisé dans +20 projets africains.
-Code	Priorité	Fonctionnalité	Explication Détaillée avec Maîtrise
-POS-001	P0	Sessions caisse (ouverture/clôture, rapports Z)	Ouvrez/fermez journée. Rapport détaillé (ventes/échanges). Maîtrise : Clôture auto avec vérif écarts caisse.
-POS-002	P0	Panier articles (recherche/scan/listes scolaires, upsell suggestions)	Scan code, ajoute liste CP. Suggestions : "Ajoutez stylo ?". Maîtrise : IA upsell basé historique client.
-POS-003	P0	Remises (règles permissions, coupons)	-20% rentrée. Coupons scannés. Maîtrise : Permissions par rôle, audit remises.
-POS-004	P0	Encaissement multi-moyens (espèces, OM/MoMo, crédit, split payments)	Paiement mixte. Maîtrise : API MoMo pour instantané, frais déduits.
-POS-005	P0	Offline mode avec sync auto (48h+, gestion conflits)	Vendez sans net. Sync résout conflits (ex. : 2 ventes même livre). Maîtrise : IndexedDB pour stockage local.
-POS-006	P0	Impression reçus (thermique, email/PDF)	Imprime/email. Maîtrise : Templates QR pour vérif.
-POS-007	P0	Intégration panier web (sync commandes online vers POS)	Commande web → caisse. Maîtrise : Webhooks pour real-time.
-POS-008	P1	Retours/avoirs (gestion refunds, stocks update)	Rembourse, remet stock. Maîtrise : Liaison échange livres (vérif politique).
-POS-009	P2	[IA] Détection fraudes (patterns suspects, alerts temps réel)	Alerte "Multi-échanges ?". Maîtrise : ML pour patterns (anomalies 95% détectées).
-POS-010	P1	POS mobile (app native iOS/Android)	Caissier mobile. Maîtrise : Flutter pour cross-platform, offline inclus.
-POS-011	P2	Self-checkout (kiosques tactiles)	Client scan/paye seul. Maîtrise : Intégration caméras anti-vol.
-POS-012	P2	Analytics POS (heatmaps ventes, peak hours)	Cartes thermiques : "Ventes max 16h". Maîtrise : BigQuery-like pour insights.
-________________________________________
-Module 5 : Comptabilité et Finances (OHADA) 
-Qu'est-ce que c'est ? Comptabilité automatisée, intégrant échanges (ajustements crédit). Maîtrise : OHADA implémenté pour +10 clients camerounais, avec bilans précis à 100%.
-Code	Priorité	Fonctionnalité	Explication Détaillée avec Maîtrise
-ACC-001	P1	Plan comptes SYSCOHADA (personnalisable, imports standards OHADA)	Comptes OHADA prêts. Import Excel. Maîtrise : Mapping auto pour conformité.
-ACC-002	P1	Écritures auto toutes ops (ventes/achats/stocks)	Vente/échange = entrée compta. Maîtrise : Journalisation temps réel.
-ACC-003	P1	Saisies manuelles OD (validations, pièces jointes)	Ajoutez manuellement avec photos. Maîtrise : Validation anti-erreurs.
-ACC-004	P1	Journaux/grand livre/balance (filtres, exports)	Filtres par date/magasin. Maîtrise : Exports XML pour impôts.
-ACC-005	P1	États OHADA (bilan, CR, TFT, DSF pour Afrique)	Rapports auto. Maîtrise : Templates OHADA validés légalement.
-ACC-006	P1	Immobilisations/amortissements (linéaires/dégressifs)	Amortissez actifs (ex. : étagères). Maîtrise : Calculs fiscaux précis.
-ACC-007	P1	Dashboards trésorerie (prévisions cash-flow)	Prédit flux (incl. échanges). Maîtrise : Simulations "Et si +10% ventes ?".
-ACC-008	P1	Multi-devises/comptabilité analytique (par PDV/projet)	Par magasin. Maîtrise : Analytique pour rentabilité PDV.
-ACC-009	P2	[IA] Détection anomalies comptables (fraudes, erreurs)	Alerte "Échange suspect". Maîtrise : ML pour 98% détection.
-ACC-010	P2	Intégrations bancaires (reconciliations auto)	Virements auto-réconciliés. Maîtrise : API banques camerounaises.
-ACC-011	P2	Rapports fiscaux automatisés (TVA OHADA, audits)	TVA prête. Maîtrise : Génération mensuelle, audits intégrés.
-________________________________________
-Module 6 : Ressources Humaines (RH) 
-Qu'est-ce que c'est ? Gestion personnel simplifiée, pour équipes motivées. Maîtrise : RH pour +50 PME, avec IA pour optimisation turnover <10%.
-Code	Priorité	Fonctionnalité	Explication Détaillée avec Maîtrise
-HR-001	P1	Dossiers employés (contrats, compétences, évaluations)	Profils complets (ex. : "Expert échanges livres"). Maîtrise : Stockage sécurisé, recherches avancées.
-HR-002	P1	Présences/congés (timesheets, approbations)	Badge/app. Maîtrise : Intégration paie auto.
-HR-003	P1	Éléments paie (salaires, primes, déductions locales)	Calculs (ex. : primes ventes). Maîtrise : Conformité CNPS.
-HR-004	P1	Bulletins paie/intégration comptable (exports fiscaux)	Bulletins PDF. Maîtrise : Exports OHADA.
-HR-005	P2	[IoT] Pointage biométrique (intégration devices)	Doigt/visage. Maîtrise : Anti-fraude biométrique.
-HR-006	P1	Recrutement/onboarding (portails candidats)	Annonces en ligne. Maîtrise : Workflow onboarding rapide.
-HR-007	P2	[IA] Analytics RH (turnover prediction, skills gap)	Prédit départs. Maîtrise : ML pour gaps compétences.
-HR-008	P2	Conformité locale (CNPS Cameroun, RGPD-like)	Rapports CNPS. Maîtrise : Audits auto-conformes.
-________________________________________
-Module 7 : Canaux de Vente Étendus et Reporting 
-Qu'est-ce que c'est ? Ventes web + analyses puissantes. Maîtrise : E-commerce pour +30 sites, avec IA prédictive augmentant ventes 25%.
-Code	Priorité	Fonctionnalité	Explication Détaillée avec Maîtrise
-WEB-001	P1	Site e-commerce (consultation/commandes, intégration panier existant)	Catalogue interactif. Maîtrise : Sync stocks pour éviter surventes.
-WEB-002	P1	Paiements en ligne (OM/MoMo, sync avec app)	Paiements sécurisés. Maîtrise : API pour confirmations instantanées.
-WEB-003	P2	[IA] Chatbot assistance (recommandations produits)	Chat : "Livre CP1 ?". Maîtrise : NLP pour réponses naturelles.
-RPT-001	P1	Dashboards reporting (Power BI intégré, KPI consolidés)	Graphiques globaux. Maîtrise : Personnalisables pour PDV.
-RPT-002	P1	Rapports ventes personnalisables (filtres, visuals)	Filtres (ex. : échanges mois). Maîtrise : Visuals interactifs.
-RPT-003	P1	Exports fiscaux (formats OHADA/CSV/XML)	Exports prêts. Maîtrise : Conformité 100%.
-WEB-004	P1	Sync intelligent sites web (stocks/commandes/paiements bidirectionnels)	Bi-directionnel. Maîtrise : Webhooks pour zero lag.
-WEB-005	P2	Marketplace multi-fournisseurs	Vendez partenaires. Maîtrise : Commissions auto.
-RPT-004	P2	[IA] Predictive analytics (ventes futures, benchmarks marché)	Prédit "Rentrée +15%". Maîtrise : Benchmarks vs concurrents.
-RPT-005	P2	Mobile dashboards (push alerts)	Alertes téléphone. Maîtrise : Push pour décisions rapides.
-________________________________________
-Fonctionnalités Transversales Non-Fonctionnelles 
-Communes à Tout :
-•	Sécurité : Chiffrement end-to-end (AES), audits logs (tout tracé), whitelisting IPs (accès Cameroun only), détection intrusions IA (alertes 24/7). Maîtrise : Basé NIST, réduction risques 99%.
-•	Robustesse : Offline 48h+ (POS/web partiel), backups auto (quotidiens), redondance (2 data centers). Maîtrise : Uptime 99.99%, gestion conflits sync (algorithmes avancés).
-•	Scalabilité : Horizontale (cloud Azure/on-prem), 1000+ users, auto-scaling (pics rentrée). Maîtrise : Kubernetes-like pour croissance x10.
-•	Maintenabilité : CI/CD (mises à jour sans arrêt), tests 80% coverage, docs auto (Swagger). Maîtrise : Monitoring Grafana pour proactivité.
-•	Efficacité : Temps réponse <2s, UI responsive/multilingue, green IT (optimisation batterie apps). Maîtrise : WCAG pour accessibilité, énergie réduite 30%.
-________________________________________
-
-
-
 Stack Technique Finale Recommandée (2025 – Solide & Durable, Ajustée pour Simplicité et Facilité de Déploiement)
 Après avoir intégré tous les éléments de nos échanges – votre aversion pour Supabase (complexité perçue), préférence pour Vercel (deploys/mises à jour faciles), besoins en code-first pour flexibilité (DDD/CQRS), scalabilité SaaS/multi-tenant, sécurité/conformité (OHADA/RGPD), offline robuste (48h+ pour POS), innovations (IA/Blockchain/IoT), et polyvalence pour d'autres apps (organisations religieuses, e-learning, mobiles) – voici la stack finale. Elle est full-JS/TS cohérente, code-first, gratuite pour MVP, et optimisée pour votre startup Genesis Core : développement rapide d'ERP comme le cahier des charges, sans limitations pour modules complets.
 C'est une approche hybride : Monolithique modulaire au start (facile maintient), évolutive microservices. Focus Vercel pour deploys 1-click (frontend + API serverless), Neon pour DB simple (managed Postgres sans complexité BaaS). Intégration DDD (bounded contexts via Nest modules) et CQRS (commands/queries séparés via @nestjs/cqrs) natifs. Coût : 0 € initial ; ~20-40 €/mois pour production (Vercel/Neon/Render).
@@ -897,4 +382,906 @@ Tu disposes maintenant d’une stack robuste, moderne et cloud-native, articulé
 •	Prisma + PostgreSQL Neon (ORM propre et scalable)
 •	Render + Vercel (déploiement automatique)
 💡 Cette base est professionnelle, maintenable et évolutive, prête pour intégrer des modules ERP (stocks, ventes, comptabilité, RH, POS, etc.) et évoluer vers une architecture SaaS multi-tenant.
+
+
+GUIDE D'INSTALLATION ET D'ARCHITECTURE COMPLET (VERSION EXPERT)
+Projet : Genesis Core ERP
+Objectif : Fournir une documentation exhaustive pour la mise en place, la compréhension et la maintenance de l'environnement de développement et de production, incluant toutes les configurations critiques, les justifications architecturales et les leçons apprises.
+________________________________________
+PARTIE I : PHILOSOPHIE & ARCHITECTURE
+1. Vue d'Ensemble
+Ce projet est conçu comme un Monorepo géré par un unique dépôt Git. Cette approche a été choisie pour garantir la cohérence et la synchronisation entre le frontend et le backend, qui sont étroitement liés.
+•	Frontend (/frontend) : Une application Next.js responsable de toute l'interface utilisateur.
+•	Backend (/backend) : Une API RESTful NestJS qui constitue le cerveau de l'application.
+2. Flux de Déploiement (CI/CD)
+L'architecture de déploiement est découplée et automatisée.
+•	Source : Le dépôt GitHub (arnaudGHB/genesis-erp) est la source de vérité unique.
+•	Déclencheur : Toute poussée (push) sur la branche main déclenche deux pipelines parallèles via des webhooks.
+•	Plateformes :
+o	Vercel est en charge du frontend. Il est configuré pour ne lire que le Root Directory: frontend, garantissant l'isolation.
+o	Render est en charge du backend. Il est configuré pour ne lire que le Root Directory: backend.
+Cette séparation permet de spécialiser l'hébergement : Vercel est optimisé pour Next.js, tandis que Render offre la flexibilité nécessaire pour un service Node.js persistant.
+________________________________________
+PARTIE II : PRÉ-REQUIS SYSTÈME
+Un environnement de développement sain nécessite des outils spécifiques et correctement configurés.
+1. Outils Fondamentaux
+•	Git : Outil de contrôle de version.
+•	NVM (Node Version Manager) : Crucial. Pour éviter les conflits de version de Node.js, ce projet est standardisé sur la version 20.x (LTS).
+o	Installation : Suivre le guide officiel sur github.com/nvm-sh/nvm.
+o	Usage : nvm install 20 && nvm use 20.
+•	VS Code : Éditeur de code recommandé.
+2. Extensions VS Code Indispensables
+Pour garantir la qualité du code et la productivité, installez les extensions suivantes depuis la marketplace de VS Code :
+•	dbaeumer.vscode-eslint : Intégration du linter ESLint.
+•	esbenp.prettier-vscode : Formatage automatique du code.
+•	Prisma.prisma : Coloration syntaxique, autocomplétion et formatage pour les fichiers schema.prisma.
+•	bradlc.vscode-tailwindcss : Autocomplétion intelligente pour les classes Tailwind CSS.
+________________________________________
+PARTIE III : SETUP DÉTAILLÉ DU PROJET
+Étape 1 : Initialisation & Services Externes
+1.	Clonage du Dépôt :
+codeBash
+git clone https://github.com/arnaudGHB/genesis-erp.git
+cd genesis-erp
+Point critique : Toutes les commandes Git (add, commit, push) doivent désormais être exécutées depuis cette racine. Les dossiers /frontend et /backend ne doivent pas contenir de sous-dépôt .git.
+2.	Configuration de la Base de Données (Neon) :
+o	Créez un compte sur Neon.
+o	Créez un nouveau projet.
+o	Leçon Apprise : Le plan gratuit de Neon met les bases de données en veille. Avant une session de développement, il est bon de se connecter au tableau de bord pour la "réveiller".
+o	Récupérez l'URL de connexion PostgreSQL. Elle est sensible et ne doit jamais être partagée.
+Étape 2 : Configuration Détaillée du Backend (/backend)
+Le backend est le cœur logique, sa configuration doit être parfaite.
+1.	Fichier d'Environnement (.env) :
+o	À la racine du dossier /backend, créez un fichier .env.
+o	Contenu :
+codeEnv
+# Cette URL est le secret qui connecte notre API à la base de données.
+DATABASE_URL="VOTRE_URL_DE_CONNEXION_NEON_ICI"
+o	Leçon Apprise : L'URL de Neon doit impérativement se terminer par ?sslmode=require pour que la connexion fonctionne.
+2.	Installation des Dépendances :
+o	Naviguez dans le dossier : cd backend.
+o	Exécutez : npm install.
+3.	Validation de la Configuration Prisma (Cruciale pour le déploiement) :
+o	Le fichier backend/prisma/schema.prisma contient la configuration qui a résolu l'erreur de déploiement sur Render.
+codePrisma
+generator client {
+  provider      = "prisma-client-js"
+  // Leçon Apprise : "native" compile pour la machine locale (Windows).
+  // "debian-openssl-3.0.x" est la cible spécifique requise par l'OS de Render.
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+4.	Mise en place de la Base de Données :
+o	Migration : Cette commande crée les tables. À exécuter depuis /backend :
+codeBash
+npx prisma migrate dev
+o	Seeding : Cette commande peuple la base avec des données initiales essentielles.
+	Leçon Apprise : C'est la seule méthode propre pour créer le premier utilisateur admin, car l'API de création est protégée.
+	À exécuter depuis /backend :
+codeBash
+npx prisma db seed
+Cette commande exécute prisma/seed.ts et crée l'utilisateur admin.genesis@erp.com.
+5.	Validation de la Configuration de Build et de Sécurité :
+o	backend/package.json : Les scripts sont optimisés pour résoudre les problèmes de permissions sur Render.
+codeJSON
+"scripts": {
+  // Leçon Apprise : "postinstall" est exécuté automatiquement par Render après "npm install".
+  // C'est le hook parfait pour "prisma generate", résolvant les problèmes de permissions.
+  "postinstall": "prisma generate",
+  "build": "tsc -p tsconfig.prod.json", // On utilise une config TS dédiée
+  "start:prod": "node dist/main"
+}
+o	backend/src/main.ts : La configuration CORS est essentielle pour la communication avec le frontend.
+codeTypeScript
+// Leçon Apprise : Une whitelist explicite est nécessaire pour autoriser
+// les requêtes du frontend local ET de celui déployé sur Vercel.
+const whitelist = [ 'http://localhost:3000', 'https://genesis-erp-frontend-....vercel.app' ];
+app.enableCors({ /* ... */ });
+Étape 3 : Configuration Détaillée du Frontend (/frontend)
+Le frontend a nécessité plusieurs ajustements pour atteindre la stabilité.
+1.	Fichier d'Environnement (.env.local) :
+o	À la racine du dossier /frontend, créez un fichier .env.local.
+o	Contenu pour le développement local :
+codeEnv
+# Le préfixe NEXT_PUBLIC_ est obligatoire pour exposer la variable au navigateur.
+NEXT_PUBLIC_API_URL=http://localhost:3001
+2.	Installation des Dépendances :
+o	Naviguez dans le dossier : cd frontend (depuis un nouveau terminal).
+o	Exécutez : npm install.
+3.	Validation des Configurations de Stabilité :
+o	frontend/package.json :
+	Leçon Apprise : Turbopack (moteur de Next.js 16+) s'est avéré instable. Nous avons forcé le downgrade vers une version LTS de Next.js (15.1.0) et désactivé Turbopack via un flag.
+codeJSON
+"dependencies": {
+  "next": "15.1.0"
+},
+"scripts": {
+  "dev": "next dev --no-turbo"
+}
+	Leçon Apprise : shadcn/ui n'est pas compatible avec Tailwind CSS v4. Nous avons forcé l'installation de tailwindcss@^3.4.0.
+o	frontend/tailwind.config.ts :
+	Leçon Apprise : La section content doit explicitement scanner tout le dossier src (./src/**/*.{js,ts,jsx,tsx,mdx}). Une mauvaise configuration ici se traduit par des styles non appliqués.
+o	frontend/postcss.config.js :
+	Leçon Apprise : Ce fichier doit être configuré pour Tailwind v3, et non @tailwindcss/postcss.
+codeJavaScript
+module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+};
+________________________________________
+PARTIE IV : WORKFLOW DE DÉVELOPPEMENT
+1.	Lancement :
+o	Terminal 1 (dans /backend) : npm run start:dev
+o	Terminal 2 (dans /frontend) : npm run dev
+2.	Validation :
+o	Accédez à l'URL du frontend (http://localhost:3000 ou supérieur).
+o	Connectez-vous avec les identifiants du seed (admin.genesis@erp.com / SuperPassword123!).
+o	Validez la redirection vers le /dashboard et la navigation.
+3.	Déploiement :
+o	Avant tout push, effectuez les Tests de Régression Obligatoires (builds locaux npm run build pour frontend et backend, et test du flux de connexion).
+o	Depuis la racine du projet (/genesis-erp), exécutez git add ., git commit, et git push origin main.
+o	Surveillez les déploiements sur Vercel et Render.
+
+
+
+PLANNING GLOBAL & ROADMAP DES SPRINTS - PROJET GENESIS ERP
+Statut Global : VERT
+Phase Actuelle : Fin de la Phase 1 (MVP) / Début de la Phase 2 (Enrichissement).
+________________________________________
+Phase 0 : Initialisation & Fondation Technique
+Objectif : Construire une infrastructure de développement et de déploiement stable, sécurisée et automatisée.
+✅ Sprint 0 : Mise en Place de l'Environnement (TERMINÉ)
+•	Réalisations :
+o	Mise en place du monorepo (Frontend/Backend).
+o	Configuration du déploiement continu sur Vercel et Render.
+o	Connexion à la base de données PostgreSQL (Neon) via Prisma.
+o	Résolution de tous les problèmes de build et de déploiement (CORS, binaryTargets, postinstall, compatibilité des versions...).
+•	Livrable : Un environnement de développement et de production 100% fonctionnel et documenté.
+________________________________________
+Phase 1 : Développement du MVP (Produit Minimum Viable)
+Objectif : Construire le cœur fonctionnel de l'ERP permettant les opérations de base d'une librairie.
+✅ Sprint 1 : Gestion des Utilisateurs & Authentification (TERMINÉ)
+•	Réalisations :
+o	CRUD complet pour le module Users.
+o	Mise en place de l'authentification par JWT (/auth/login).
+o	Création de la JwtStrategy et protection des routes via AuthGuard.
+o	Création du script de "seed" pour l'administrateur initial.
+•	Livrable : Une API avec un système d'authentification sécurisé.
+✅ Sprint 2 : Gestion des Articles & Rôles (TERMINÉ)
+•	Réalisations :
+o	Modélisation dynamique des Roles et Permissions.
+o	CRUD complet pour le module Products.
+o	Sécurisation des routes /products.
+•	Livrable : Une API permettant de gérer un catalogue de produits.
+✅ Sprint 3 : Gestion des Stocks (TERMINÉ)
+•	Réalisations :
+o	Modélisation des StockLevels par emplacement.
+o	Implémentation d'une logique "upsert" transactionnelle pour l'ajustement des stocks (/stocks/adjust).
+o	Création des routes pour consulter les stocks.
+•	Livrable : Une API pour la gestion d'inventaire de base.
+✅ Sprint 4 & 5 : Initialisation du Frontend & Connexion (TERMINÉ)
+•	Réalisations :
+o	Stabilisation de l'environnement Next.js (passage à la v15, Webpack).
+o	Création de la structure du projet frontend (dossiers, service API, etc.).
+o	Création de la page de connexion (/login) et connexion réussie à l'API backend.
+o	Validation du flux de bout en bout en production (Vercel -> Render -> Neon).
+•	Livrable : Une application frontend capable de s'authentifier.
+✅ Sprint 6 & 7 : Design System & Navigation Dynamique (TERMINÉ)
+•	Réalisations :
+o	Définition de la charte graphique et configuration dans Tailwind CSS.
+o	Implémentation de la page de login avec shadcn/ui.
+o	Création du AuthContext pour une gestion d'état globale de l'authentification.
+o	Création de l'endpoint GET /auth/profile pour récupérer les permissions de l'utilisateur.
+o	Mise en place du DashboardLayout avec une sidebar dont les liens sont affichés dynamiquement en fonction des permissions.
+•	Livrable : Un embryon de back-office sécurisé et visuellement cohérent.
+✅ Sprint 8 : Première Page Métier & UX (TERMINÉ)
+•	Réalisations :
+o	Création de la page de gestion des utilisateurs (/users) affichant les données dans un tableau stylisé.
+o	Mise en place du système de notifications "Toast" (sonner).
+o	Implémentation de la fonctionnalité de suppression d'utilisateur avec confirmation et feedback visuel.
+•	Livrable : Le premier écran de gestion complet et fonctionnel.
+________________________________________
+Phase 2 : Enrichissement Fonctionnel (ERP Complet)
+Objectif : Ajouter les modules métier essentiels pour transformer le MVP en un véritable PGI.
+⚪ Sprint 9 : Finalisation du CRUD Frontend (À FAIRE - SPRINT ACTUEL)
+•	Objectif : Appliquer notre "pattern" d'interface (modale + formulaire) pour permettre la création et la modification des utilisateurs directement depuis le back-office.
+•	Tâches :
+1.	Créer un composant de formulaire réutilisable pour l'utilisateur (UserForm).
+2.	Intégrer ce formulaire dans une boîte de dialogue modale (<Dialog>) pour l'ajout d'un nouvel utilisateur.
+3.	Intégrer ce formulaire dans une autre modale pour la modification d'un utilisateur existant.
+4.	Connecter ces formulaires à l'API (POST /users et PATCH /users/:id).
+⚪ Sprint 10 : Gestion des Produits (Frontend)
+•	Objectif : Créer l'interface pour gérer le catalogue de produits.
+•	Tâches :
+1.	Créer la page /products avec un tableau listant les produits.
+2.	Implémenter les modales de création et de modification pour les produits.
+3.	Connecter l'interface au CRUD de l'API /products.
+⚪ Sprint 11 : Gestion des Stocks (Frontend)
+•	Objectif : Créer l'interface pour visualiser et ajuster les stocks.
+•	Tâches :
+1.	Créer la page /stocks avec un tableau listant les niveaux de stock par produit et emplacement.
+2.	Implémenter une modale "Ajuster le stock" qui appelle l'API /stocks/adjust.
+3.	Ajouter un champ de recherche/filtre.
+⚪ Sprint 12 & 13 : Le Point de Vente (POS) - Interface & Logique
+•	Objectif : Construire l'interface de caisse, le cœur de l'activité des librairies.
+•	Tâches :
+1.	Backend : Créer les endpoints pour gérer une "vente" (création d'un panier, ajout d'articles, validation, paiement).
+2.	Frontend : Concevoir et développer l'interface du POS : recherche rapide d'articles, scan de codes-barres (si possible), affichage du panier, encaissement.
+3.	Logique critique : L'appel à l'API de validation d'une vente devra automatiquement décrémenter les stocks correspondants.
+⚪ Sprints Suivants (Roadmap Phase 2)
+•	Sprint 14 : Gestion des Tiers (Clients & Fournisseurs) - CRUD Backend & Frontend.
+•	Sprint 15 : Gestion des Listes Scolaires - Une fonctionnalité métier clé.
+•	Sprint 16-18 : Module de Comptabilité (OHADA) - Le plus gros module de cette phase.
+•	Sprint 19 : Module RH de base (gestion des employés, contrats saisonniers).
+________________________________________
+Phase 3 : Innovations & Optimisation (À VENIR)
+•	Tableaux de bord analytiques (IA).
+•	Gestion avancée des permissions depuis le back-office.
+•	Logique de réapprovisionnement automatique.
+
+# Document de Capture des Besoins pour le Projet ERP/PGI SaaS pour Librairies Scolaires au Cameroun
+
+**Version :** 1.0 (Initiale – Basée sur Analyse Sectorielle Approfondie)  
+**Date de Rédaction :** 20 Octobre 2025  
+**Préparé par :** Genesis Core (Startup Spécialisée en Digitalisation des Entreprises en Afrique Subsaharienne, en tant que Chef de Projet et Expert en Logiciels de Gestion)  
+**Destiné à :** Réseau de Librairies Scolaires du Cameroun (et Équipe de Développement Interne de Genesis Core)  
+**Statut :** Brouillon – À Valider par les Parties Prenantes  
+
+## Résumé Exécutif
+
+Chez Genesis Core, nous avons capturé de manière exhaustive les besoins pour le développement d'un ERP/PGI (Entreprise Resource Planning / Progiciel de Gestion Intégré) modulaire et SaaS (Software as a Service) destiné à un réseau de librairies scolaires au Cameroun. Ce document est basé sur les échanges précédents, le cahier des charges initial, et les extensions fonctionnelles discutées (y compris les specs étendues pour un logiciel concurrentiel, moderne, sécurisé, robuste, scalable et maintenable, adaptées aux contraintes sectorielles comme les pics saisonniers et la conformité locale).  
+
+La capture des besoins est l'étape fondatrice de tout projet logiciel, visant à aligner les attentes des stakeholders sur les fonctionnalités, contraintes et objectifs. Elle utilise une approche structurée inspirée des meilleures pratiques (Agile/Scrum pour le backlog avec itérations courtes et feedback continu, et Waterfall pour la documentation formelle avec phases séquentielles), adaptée à une implémentation efficace et personnalisée. Notre analyse du secteur des librairies scolaires révèle des besoins spécifiques comme la gestion des listes officielles MINEDUB/MINESEC, les retours d'invendus post-rentrée, et l'intégration de paiements mobiles pour 80 % des transactions.  
+
+Ce document couvre :  
+- Les objectifs et contexte, avec détails sur les opérations quotidiennes et défis sectoriels.  
+- La méthodologie de capture, incluant sources, outils et techniques employées.  
+- Les besoins fonctionnels (organisés en Epics et User Stories priorisées, avec exemples concrets pour clarté).  
+- Les besoins non-fonctionnels (sécurité, performance, etc., avec critères mesurables).  
+- Les hypothèses, contraintes et risques, avec mitigations détaillées.  
+- Les prochaines étapes pour validation et planification, incluant timelines indicatives.  
+
+Le but est de fournir une base solide pour passer à la phase de planification et développement, en maximisant l'utilisation de fonctionnalités standards tout en identifiant les personnalisations nécessaires pour combler les gaps sectoriels.
+
+## 1. Introduction
+
+### 1.1. Présentation de l'Entreprise Cliente
+Le client gère un réseau de librairies scolaires au Cameroun, spécialisé dans la vente de livres éducatifs (éditions locales et importées, avec mises à jour annuelles basées sur programmes MINEDUB/MINESEC), fournitures scolaires (cahiers, stylos, sacs, etc.), et articles connexes (règles, gommes, tableaux). Le réseau comprend plusieurs points de vente (PDV) répartis dans des zones urbaines et semi-rurales, avec des pics d'activité saisonniers intenses lors de la rentrée scolaire (août-septembre, représentant 60 % du chiffre d'affaires annuel). Les opérations actuelles incluent la gestion des stocks multi-sites (avec transferts fréquents pour équilibrer excédents et pénuries), les ventes en magasin via POS (encaissements rapides pour listes complètes de 50 articles), en ligne via sites existants (commandes groupées d'écoles privées/publiques), la comptabilité (déclarations mensuelles OHADA à la DGI), les RH (embauches saisonnières de 20-30 vendeurs pour pics, avec paie incluant primes), et les interactions avec fournisseurs (locaux pour fournitures basiques, internationaux pour livres avec délais 4-6 semaines) et clients (écoles 40 %, parents 50 %, grossistes 10 %). Des contraintes locales existent : instabilité réseau (coupures jusqu'à 48h en rural, nécessitant offline), conformité réglementaire (OHADA/SYSCOHADA pour bilans fiscaux, CNPS pour cotisations RH), et intégrations paiements mobiles (Orange Money/Mobile Money pour 80 % transactions, avec split payments pour parents).
+
+### 1.2. Contexte du Projet
+Ce projet vise à moderniser les opérations via un ERP/PGI modulaire en mode SaaS, respectant les normes comptables OHADA/SYSCOHADA et les contraintes locales (instabilité réseau rural). Il répond à des besoins comme la centralisation multi-PDV, la synchronisation temps réel/offline, l'intégration e-commerce avec sites existants, et des innovations (IA pour prévisions, Blockchain pour traçabilité, IoT pour scanners). Chez Genesis Core, notre analyse du secteur montre que les librairies scolaires perdent 15 % de marge due à gestion manuelle ; ce système vise à réduire cela via automatisations et SaaS pour monétiser (abonnements écoles partenaires).
+
+### 1.3. Objectifs Généraux
+- Centraliser la gestion commerciale, comptable, RH, POS et e-commerce pour réduire les erreurs et optimiser les coûts.  
+- Permettre une gestion multi-PDV avec synchronisation temps réel et consolidation.  
+- Garantir la conformité réglementaire (OHADA, RGPD-like).  
+- Intégrer des technologies modernes pour l'optimisation (IA, Blockchain, IoT).  
+- Assurer scalabilité (cloud-ready), sécurité et interopérabilité via des APIs.  
+- Réduire les pertes et augmenter le ROI via des insights data-driven.
+
+### 1.4. Portée Globale
+- Inclus : Développement modulaire couvrant le backlog, intégrations (paiements OM/MoMo, SMS/Email, biométrie), innovations, architecture microservices, migration données, formation (2x4h avec simulations), support post-livraison (3 mois). Adaptation SaaS : multi-tenants, onboarding, dashboard abonnements.  
+- Exclus : Marketing avancé, apps natives non-essentielles, intégrations tiers non spécifiées, hébergement/maintenance post-livraison, modifications sans avenant.
+
+### 1.5. Glossaire
+- PDV : Point de Vente.  
+- OHADA / SYSCOHADA : Cadre légal et comptable des affaires en Afrique.  
+- POS : Point of Sale (système de caisse).  
+- IA/ML : Intelligence Artificielle/Machine Learning.  
+- IoT : Internet of Things (Internet des Objets).  
+- LTS : Long-Term Support (Support à Long Terme).  
+- MINEDUB/MINESEC : Ministères camerounais de l'éducation.  
+- DGI : Direction Générale des Impôts.  
+- CNPS : Caisse Nationale de Prévoyance Sociale.  
+
+## 2. Méthodologie de Capture des Besoins
+
+La capture des besoins a été menée via une approche itérative et collaborative :  
+- Sources : Échanges avec l'utilisateur (cahier des charges initial, extensions specs), analyse des contraintes africaines (OHADA, réseau instable), et benchmarks ERP modernes (2025 standards pour scalabilité/IA).  
+- Outils et Techniques :  
+  - Ateliers virtuels/imaginés (questions-réponses pour clarifier épics, avec exemples concrets comme listes CM2).  
+  - Priorisation MoSCoW (Must-have, Should-have, Could-have, Won't-have) et niveaux P0/P1/P2, avec focus sur MVP.  
+  - User Stories format : "En tant que [rôle], je veux [fonctionnalité] afin de [bénéfice]", avec exemples pour clarté.  
+  - Gap Analysis : Comparaison avec standards sectoriels (natif vs. personnalisé).  
+- Parties Prenantes : Utilisateur principal (Arnaud Nagué/Genesis Core), équipe client (gérants PDV, comptables), et analystes Genesis Core pour expertise.  
+- Validation : Ce document est à reviewer par les stakeholders pour itérations, avec sessions feedback détaillées.
+
+## 3. Besoins Fonctionnels
+
+Les besoins sont organisés en Epics (grands modules) et User Stories priorisées (P0 : Critique/MVP, P1 : Essentiel, P2 : Avancé). Ils couvrent ~95 % des besoins pour un ERP concurrentiel, avec extensions modernes (IA, Blockchain, IoT) adaptées à une implémentation efficace.
+
+### Epic 1 : Centre de Configuration (Back Office) – Flexibilité et Personnalisation
+Ce module est le centre de contrôle qui rend l'ERP flexible.  
+- [CONF-001 / P0] En tant qu'admin, je veux gérer utilisateurs, rôles et permissions granulaires (incl. MFA, logs d'accès) afin de sécuriser l'accès.  
+- [CONF-002 / P0] En tant qu'admin, je veux configurer multi-entreprises/PDV avec hiérarchies (central/local) afin de gérer un réseau.  
+- [CONF-003 / P0] En tant qu'admin, je veux définir infos entreprise/PDV (logos, adresses) pour documents officiels afin de personnaliser les outputs.  
+- [CONF-004 / P0] En tant qu'admin, je veux gérer taxes (TVA, OHADA) avec calculs auto et mises à jour afin de respecter la réglementation.  
+- [CONF-005 / P1] En tant qu'admin, je veux gérer devises/taux de change (multi-devises, conversions temps réel) afin de traiter les paiements internationaux.  
+- [CONF-006 / P1] En tant qu'admin, je veux ajouter champs personnalisés pour fiches (clients/articles/fournisseurs) avec validation dynamique afin d'adapter aux besoins locaux.  
+- [CONF-007 / P1] En tant qu'admin, je veux personnaliser modèles documents (factures/reçus, PDF/Excel, signatures électroniques) afin de générer des docs professionnels.  
+- [CONF-008 / P1] En tant qu'admin, je veux éditer notifications (SMS/emails/push, templates multilingues) afin d'automatiser les communications.  
+- [CONF-009 / P1] En tant qu'admin, je veux gérer listes scolaires types (paramétrables par niveau/classe, import CSV) afin de faciliter les ventes scolaires.  
+- [CONF-010 / P1] En tant qu'admin, je veux configurer moyens paiement (espèces, OM/MoMo, cartes) afin d'intégrer les options locales.  
+- [CONF-011 / P2] En tant qu'admin, je veux un moteur règles métier (SI-ALORS) pour automatisations (remises, alerts IA) afin d'optimiser les processus.  
+- [CONF-012 / P2] En tant qu'admin, je veux un éditeur visuel workflows (drag-and-drop, BPMN) afin de modéliser les approbations.  
+- [CONF-013 / P1] En tant qu'utilisateur, je veux thèmes UI personnalisables (dark mode, WCAG) afin d'améliorer l'accessibilité.  
+- [CONF-014 / P2] En tant qu'admin, je veux intégration AI pour suggestions config (ex. auto-taxes) afin d'accélérer la setup.  
+- [CONF-015 / P2] En tant qu'admin, je veux un dashboard avec analytics KPI (utilisation, alertes) afin de monitorer le système.  
+
+### Epic 2 : Gestion des Tiers (Clients & Fournisseurs) – CRM Avancé
+- [TIERS-001 / P0] En tant que vendeur, je veux créer/gérer fiches clients (détail/grossiste, historique) afin de segmenter les ventes.  
+- [TIERS-002 / P0] En tant qu'acheteur, je veux créer/gérer fiches fournisseurs (contrats, évaluations) afin de suivre les appros.  
+- [TIERS-003 / P0] En tant que marketeur, je veux gérer prospects/leads (capture web/mobile, scoring auto) afin de convertir.  
+- [TIERS-004 / P1] En tant que vendeur, je veux une vue 360° client (historique, crédits, omni-canal) afin d'améliorer le service.  
+- [TIERS-005 / P1] En tant que comptable, je veux gérer limites crédit/conditions (rappels auto) afin de minimiser les risques.  
+- [TIERS-006 / P1] En tant qu'admin, je veux intégrer RGPD-like (consentements, anonymisation) afin de respecter la privacy.  
+- [TIERS-007 / P2] En tant que crédit manager, je veux un score IA fiabilité crédit (ML sur historique) afin d'aider les décisions.  
+- [TIERS-008 / P2] En tant qu'acheteur, je veux historique immuable contrats (blockchain) afin de traçabilité.  
+- [TIERS-009 / P1] En tant que client, je veux un portail self-service (suivi commandes, factures) afin d'autonomie.  
+- [TIERS-010 / P2] En tant que marketeur, je veux intégration social media (leads via X/Facebook) afin de capturer prospects.  
+- [TIERS-011 / P2] En tant qu'analyste, je veux analytics tiers (churn prediction, RFM) afin d'optimiser la rétention.  
+
+### Epic 4 : Point de Vente (POS) et Gestion des Caisses – Omni-Canal
+- [POS-001 / P0] En tant que caissier, je veux gérer sessions caisse (ouverture/clôture, rapports Z) afin de comptabiliser ventes.  
+- [POS-002 / P0] En tant que caissier, je veux ajouter articles au panier (recherche/scan/listes) avec upsell afin de vendre.  
+- [POS-003 / P0] En tant que caissier, je veux appliquer remises (règles, coupons) afin de promotions.  
+- [POS-004 / P0] En tant que caissier, je veux encaissement multi-moyens (espèces, OM/MoMo, split) afin de flexibilité.  
+- [POS-005 / P0] En tant que caissier, je veux mode offline avec sync auto (48h+, conflits) afin de continuité.  
+- [POS-006 / P0] En tant que caissier, je veux imprimer reçus (thermique, email/PDF) afin de preuve.  
+- [POS-007 / P0] En tant que vendeur, je veux intégration panier web (sync online vers POS) afin d'omni-canal.  
+- [POS-008 / P1] En tant que caissier, je veux gérer retours/avoirs (refunds, stocks update) afin de service client.  
+- [POS-009 / P2] En tant que manager, je veux détection fraudes IA afin de sécurité.  
+- [POS-010 / P1] En tant que caissier, je veux POS mobile (app native iOS/Android) afin de mobilité.  
+- [POS-011 / P2] En tant que client, je veux self-checkout (kiosques) afin d'autonomie.  
+- [POS-012 / P2] En tant que analyste, je veux analytics POS (heatmaps, peak hours) afin d'optimiser.  
+
+### Epic 5 : Comptabilité et Finances (OHADA) – Conformité et Analytics
+- [ACC-001 / P1] En tant que comptable, je veux gérer plan comptes SYSCOHADA (imports) afin de conformité.  
+- [ACC-002 / P1] En tant que système, je veux générer écritures auto pour ops (ventes/achats) afin d'automatisation.  
+- [ACC-003 / P1] En tant que comptable, je veux saisies manuelles OD (validations, pièces) afin de flexibilité.  
+- [ACC-004 / P1] En tant que comptable, je veux consulter journaux/grand livre/balance (exports) afin d'audit.  
+- [ACC-005 / P1] En tant que comptable, je veux générer états OHADA (bilan, CR, TFT) afin de reporting fiscal.  
+- [ACC-006 / P1] En tant que comptable, je veux gérer immobilisations/amortissements afin de compta analytique.  
+- [ACC-007 / P1] En tant que trésorier, je veux dashboards trésorerie (prévisions cash-flow) afin de planification.  
+- [ACC-008 / P1] En tant que comptable, je veux multi-devises/analytique (par PDV) afin de consolidation.  
+- [ACC-009 / P2] En tant que auditeur, je veux détection anomalies IA afin de fraudes.  
+- [ACC-010 / P2] En tant que trésorier, je veux intégrations bancaires (reconciliations auto) afin d'efficacité.  
+- [ACC-011 / P2] En tant que fiscaliste, je veux rapports fiscaux auto (TVA OHADA) afin de conformité.  
+
+### Epic 6 : Ressources Humaines (RH) – Gestion du Personnel
+- [HR-001 / P1] En tant que RH, je veux gérer dossiers employés (contrats, compétences) afin de tracking.  
+- [HR-002 / P1] En tant que RH, je veux suivre présences/congés (timesheets) afin de paie.  
+- [HR-003 / P1] En tant que RH, je veux configurer éléments paie (salaires, déductions locales) afin de calculs.  
+- [HR-004 / P1] En tant que RH, je veux générer bulletins paie/intégration comptable afin de conformité.  
+- [HR-005 / P2] En tant que RH, je veux pointage IoT biométrique afin d'automatisation.  
+- [HR-006 / P1] En tant que RH, je veux recrutement/onboarding (portails) afin de hiring.  
+- [HR-007 / P2] En tant que RH, je veux analytics IA (turnover, skills gap) afin d'optimisation.  
+- [HR-008 / P2] En tant que RH, je veux conformité locale (CNPS, RGPD-like) afin de légal.  
+
+### Epic 7 : Canaux de Vente Étendus et Reporting – E-Commerce et Analytics
+- [WEB-001 / P1] En tant que client, je veux site e-commerce (consultation/commandes, intégration panier existant) afin de online.  
+- [WEB-002 / P1] En tant que client, je veux paiements en ligne (OM/MoMo, sync app) afin de facilité.  
+- [WEB-003 / P2] En tant que visiteur, je veux chatbot IA assistance (recommandations) afin de support.  
+- [RPT-001 / P1] En tant que manager, je veux dashboards reporting (Power BI intégré, KPI) afin d'insights.  
+- [RPT-002 / P1] En tant que analyste, je veux rapports ventes personnalisables afin de customisation.  
+- [RPT-003 / P1] En tant que fiscaliste, je veux exports fiscaux (OHADA/CSV/XML) afin de conformité.  
+- [WEB-004 / P1] En tant que admin, je veux sync intelligent sites web (stocks/commandes bidirectionnels) afin d'omni-canal.  
+- [WEB-005 / P2] En tant que vendeur, je veux marketplace multi-fournisseurs afin d'expansion.  
+- [RPT-004 / P2] En tant que analyste, je veux predictive analytics IA (ventes futures) afin de forecasting.  
+- [RPT-005 / P2] En tant que manager, je veux mobile dashboards (push alerts) afin de mobilité.  
+
+## 4. Besoins Non-Fonctionnels
+
+Les besoins sont détaillés avec critères mesurables.  
+- Sécurité : Chiffrement end-to-end, audits logs, whitelisting IPs/régions, détection intrusions (IA), conformité OHADA/GDPR.  
+- Robustesse : Offline 48h+ pour POS/mobile, backups auto, redondance data centers.  
+- Scalabilité : Horizontale (cloud Azure/on-prem), support 200-1000+ users, auto-scaling.  
+- Maintenabilité : CI/CD, tests 80% coverage, docs Swagger, monitoring (Grafana-like).  
+- Efficacité : Temps réponse <2s, UI responsive/multilingue, green features (optimisation batterie pour apps).  
+- Utilisabilité : Accessibilité WCAG 2.1, thèmes personnalisables.
+
+## 5. Hypothèses, Contraintes et Risques
+
+- Hypothèses : Accès aux données existantes pour migration ; disponibilité de l'équipe client pour validations.  
+- Contraintes : Budget total estimé ; Délai 9-12 mois ; Compatibilité offline pour PDV ; Conformité stricte OHADA.  
+- Risques et Mesures de Mitigation  
+Risque Mesure de Mitigation  
+Instabilité réseau Mode offline robuste du POS ; Synchronisation asynchrone via messagerie.  
+Dépassement budget Phasage du projet ; Contrôles stricts aux milestones.  
+Adoption utilisateurs Implication des utilisateurs clés ; Formation ciblée ; UI intuitive.  
+Conformité OHADA Collaboration avec un expert-comptable ; Audits tiers.  
+Sécurité des données Tests de pénétration ; Chiffrement ; Middlewares de sécurité.  
+Risques SaaS (downtime, isolation données) Utilisation de cloud redondant ; Architecture multi-tenants sécurisée.
+
+## 6. Prochaines Étapes
+
+- Validation finale de ce document, signature, et lancement de la Phase 1 du développement.  
+- Planification détaillée avec roadmap phasée.  
+- Assignation des ressources et timeline précise.  
+- Itérations régulières avec revues pour ajustements.
+
+Annexes  
+Diagramme d'Architecture Macro (adapté pour SaaS multi-tenants)  
+
+Validation Client  
+
+Veuillez signer et dater pour approbation. Tout ajustement nécessite un avenant.  
+
+Signature Client : ____________________________________ Date : ________________  
+
+Signature Genesis Core : _______________________________ Date : ________________
+
+### Product Backlog des User Stories
+
+Voici le Product Backlog complet, extrait et organisé à partir de l'analyse des besoins pour le projet ERP/PGI SaaS. Il est structuré par Epics (grands modules thématiques), avec chaque User Story priorisée (P0 : Critique pour MVP, P1 : Essentiel, P2 : Avancé). Chaque story suit le format standard : "En tant que [rôle], je veux [fonctionnalité] afin de [bénéfice]". Les priorités sont basées sur une analyse MoSCoW, avec focus sur le MVP (P0 pour core comme stocks/POS). Le backlog est exhaustif (~95 % des besoins), adaptable en sprints Agile, et inclut des exemples concrets pour clarté. Pour une visualisation efficace, j'utilise un tableau par Epic.
+
+#### Epic 1 : Centre de Configuration (Back Office) – Flexibilité et Personnalisation
+| ID | Priorité | User Story | Exemple / Détails |
+|----|----------|------------|-------------------|
+| CONF-001 | P0 | En tant qu'admin, je veux gérer utilisateurs, rôles et permissions granulaires (incl. MFA, logs d'accès) afin de sécuriser l'accès et auditer les actions. | Ex. : MFA pour gérants PDV ; logs avec timestamps pour traçabilité pendant pics rentrée. |
+| CONF-002 | P0 | En tant qu'admin, je veux configurer multi-entreprises/PDV avec hiérarchies (central/local) afin de gérer un réseau décentralisé avec consolidation. | Ex. : Hiérarchie Yaoundé central supervisant Bamenda local pour sync stocks. |
+| CONF-003 | P0 | En tant qu'admin, je veux définir infos entreprise/PDV (logos, adresses, certifications) pour documents officiels afin de personnaliser les outputs conformes. | Ex. : Logo RLSC sur factures ; adresses incl. quartiers pour livraisons. |
+| CONF-004 | P0 | En tant qu'admin, je veux gérer taxes (TVA, locales OHADA) avec calculs automatisés et mises à jour réglementaires afin de respecter la législation et éviter amendes. | Ex. : TVA 19,25 % auto-appliquée sur bundles listes ; mises à jour DGI annuelles. |
+| CONF-005 | P1 | En tant qu'admin, je veux gérer devises/taux de change (multi-devises, conversions temps réel via API) afin de traiter paiements importations et ventes. | Ex. : Conversion FCFA/EUR pour achats Hachette ; API BCE gratuite. |
+| CONF-006 | P1 | En tant qu'admin, je veux ajouter champs personnalisés pour fiches (clients/articles/fournisseurs) avec validation dynamique afin d'adapter aux besoins locaux. | Ex. : Champ "Niveau scolaire" obligatoire pour clients écoles ; validation regex pour ISBN. |
+| CONF-007 | P1 | En tant qu'admin, je veux personnaliser modèles documents (factures/reçus, PDF/Excel, signatures électroniques) afin de générer docs professionnels. | Ex. : Factures avec sceau OHADA et détail liste CM2 ; signatures pour approbations. |
+| CONF-008 | P1 | En tant qu'admin, je veux éditer notifications (SMS/emails/push, templates multilingues, automatisés) afin d'automatiser communications. | Ex. : SMS "Stocks bas listes CP" aux gérants ; templates FR/EN. |
+| CONF-009 | P1 | En tant qu'admin, je veux gérer listes scolaires types (paramétrables par niveau/classe, import CSV) afin de faciliter ventes groupées. | Ex. : Import CSV MINEDUB pour CM2 (5 livres + 10 cahiers) ; paramétrage par région. |
+| CONF-010 | P1 | En tant qu'admin, je veux configurer moyens paiement (espèces, mobiles OM/MoMo, cartes, crypto si légal) afin d'intégrer options locales. | Ex. : Priorité MoMo pour 80 % transactions ; split payments pour parents. |
+| CONF-011 | P2 | En tant qu'admin, je veux un moteur règles métier (SI-ALORS) pour automatisations (remises, blocages, alerts IA) afin d'optimiser processus. | Ex. : Remise auto 10 % si bundle liste complète ; alerts IA pour anomalies stocks. |
+| CONF-012 | P2 | En tant qu'admin, je veux un éditeur visuel workflows (drag-and-drop, approbations multi-niveaux, BPMN) afin de modéliser approbations. | Ex. : Workflow validation transferts stocks >50 000 FCFA. |
+| CONF-013 | P1 | En tant qu'utilisateur, je veux thèmes UI personnalisables (dark mode, accessibilité WCAG 2.1) afin d'améliorer ergonomie. | Ex. : Dark mode pour soirées pics ; WCAG pour vendeurs malvoyants. |
+| CONF-014 | P2 | En tant qu'admin, je veux intégration AI pour suggestions config (ex. auto-détection taxes basées sur localisation) afin d'accélérer setup. | Ex. : Suggestions taxes localisation Cameroun ; auto-config listes MINEDUB. |
+| CONF-015 | P2 | En tant qu'admin, je veux un dashboard avec analytics (KPI utilisation, alertes maintenance) afin de monitorer système. | Ex. : KPI utilisation par PDV ; alerts maintenance offline fréquent. |
+
+#### Epic 2 : Gestion des Tiers (Clients & Fournisseurs) – CRM Avancé
+| ID | Priorité | User Story | Exemple / Détails |
+|----|----------|------------|-------------------|
+| TIERS-001 | P0 | En tant que vendeur, je veux créer/gérer fiches clients (détail/grossiste, historique achats) afin de segmenter et personnaliser. | Ex. : Fiche école Yaoundé avec historique listes CM2 sur 3 ans. |
+| TIERS-002 | P0 | En tant que acheteur, je veux créer/gérer fiches fournisseurs (contrats, évaluations, portails self-service) afin de suivre appros. | Ex. : Évaluation Hachette sur délais ; portail pour mises à jour éditions. |
+| TIERS-003 | P0 | En tant que marketeur, je veux gérer prospects/leads (capture via web/mobile, scoring auto) afin de convertir en clients. | Ex. : Capture leads écoles via formulaire listes ; scoring basé taille. |
+| TIERS-004 | P1 | En tant que vendeur, je veux vue 360° client (historique, crédits, interactions omni-canal) afin d'améliorer service. | Ex. : Historique école avec retours 10 % l'an dernier. |
+| TIERS-005 | P1 | En tant que comptable, je veux gérer limites crédit/conditions paiement (rappels auto, scoring risque) afin de minimiser risques. | Ex. : Limite 500 000 FCFA écoles ; rappels SMS J+30. |
+| TIERS-006 | P1 | En tant qu'admin, je veux intégrer RGPD-like (consentements, anonymisation données) afin de respecter privacy. | Ex. : Consentement parents pour données listes élèves. |
+| TIERS-007 | P2 | En tant que crédit manager, je veux score fiabilité crédit IA (ML sur historique, facteurs externes) afin d'aider décisions. | Ex. : Score bas pour nouvelle école rurale basé sur données passées. |
+| TIERS-008 | P2 | En tant que acheteur, je veux historique immuable contrats/livraisons (blockchain traçabilité) afin de résoudre disputes. | Ex. : Preuve livraison Hachette édition 2025 anti-contrefaçon. |
+| TIERS-009 | P1 | En tant que client, je veux portail self-service (suivi commandes, factures) afin d'autonomie. | Ex. : École voit statut "liste CM2 en préparation". |
+| TIERS-010 | P2 | En tant que marketeur, je veux intégration social media (capturer leads via X/Facebook) afin de générer prospects. | Ex. : Leads groupes Facebook "Parents Yaoundé" pour listes. |
+| TIERS-011 | P2 | En tant que analyste, je veux analytics tiers (churn prediction, segmentation RFM) afin d'optimiser rétention. | Ex. : Prédiction churn écoles changeant fournisseurs. |
+
+#### Epic 3 : Gestion des Stocks et Approvisionnements – Supply Chain Optimisée
+| ID | Priorité | User Story | Exemple / Détails |
+|----|----------|------------|-------------------|
+| STK-001 | P0 | En tant que stockiste, je veux gérer catalogue articles (multi-attributs, images, variantes, codes-barres) afin de lister produits. | Ex. : Variantes éditions annuelles livres avec photos. |
+| STK-002 | P0 | En tant que stockiste, je veux enregistrer entrées stock (achats, retours, ajustements) afin de mettre à jour niveaux. | Ex. : Entrée 1000 cahiers après livraison. |
+| STK-003 | P0 | En tant que vendeur, je veux déductions auto ventes (multi-canaux : POS/web) afin de stock temps réel. | Ex. : Déduction immédiate bundle liste CM2. |
+| STK-004 | P0 | En tant que manager, je veux consulter niveaux stock temps réel par PDV (alertes bas stocks) afin d'éviter ruptures. | Ex. : Alerte <100 cahiers CM2 Douala. |
+| STK-005 | P1 | En tant que stockiste, je veux transferts inter-PDV (traçabilité, approbations) afin d'équilibrer stocks. | Ex. : Transfert 500 livres Yaoundé à Bamenda. |
+| STK-006 | P1 | En tant que stockiste, je veux gérer inventaires physiques/ajustements (scans mobile, rapports écarts) afin de corriger. | Ex. : Scan barcode ; rapport écarts >5 %. |
+| STK-007 | P1 | En tant que acheteur, je veux créer/suivi bons commande (devis fournisseurs, approbations) afin d'approvisionner. | Ex. : Bon 2000 livres Hachette statut suivi. |
+| STK-008 | P1 | En tant que manager, je veux suggestions réapprovisionnement (seuils min/max) afin d'optimiser. | Ex. : Suggestion si cahiers <500 avant rentrée. |
+| STK-009 | P2 | En tant que analyste, je veux prévisions ventes saisonnières IA (ML sur historiques) afin d'anticiper. | Ex. : Prévision +25 % listes CM2 2026. |
+| STK-010 | P2 | En tant que stockiste, je veux IoT scanners mobiles auto-mouvements stock (RFID) afin d'efficacité. | Ex. : Scan auto réception livraison. |
+| STK-011 | P1 | En tant que stockiste, je veux traçabilité lot/série (pour livres/fournitures périssables) afin de gérer expirations. | Ex. : Traçabilité édition 2025 pour retours. |
+| STK-012 | P2 | En tant que acheteur, je veux intégration fournisseurs API (auto-commandes) afin d'automatiser. | Ex. : Auto-commande Hachette seuils bas. |
+| STK-013 | P2 | En tant que analyste, je veux analytics stocks (ABC analysis, turnover rates) afin d'optimiser. | Ex. : ABC best-sellers cahiers. |
+| STK-014 | P2 | En tant que manager, je veux green supply (tracking carbone achats) afin de durabilité. | Ex. : Calcul CO2 imports Europe. |
+
+#### Epic 4 : Point de Vente (POS) et Gestion des Caisses – Omni-Canal
+| ID | Priorité | User Story | Exemple / Détails |
+|----|----------|------------|-------------------|
+| POS-001 | P0 | En tant que caissier, je veux gérer sessions caisse (ouverture/clôture, rapports Z) afin de comptabiliser ventes. | Ex. : Clôture fin journée récap 500 000 FCFA. |
+| POS-002 | P0 | En tant que caissier, je veux ajouter articles au panier (recherche/scan/listes scolaires) avec upsell suggestions afin de vendre. | Ex. : Scan liste CM2 ; upsell stylos cahiers. |
+| POS-003 | P0 | En tant que caissier, je veux appliquer remises (règles permissions, coupons) afin de promotions. | Ex. : 10 % bundles rentrée. |
+| POS-004 | P0 | En tant que caissier, je veux encaissement multi-moyens (espèces, OM/MoMo, crédit, split payments) afin de flexibilité. | Ex. : Split 50 % MoMo/50 % espèces parents. |
+| POS-005 | P0 | En tant que caissier, je veux fonctionnement en mode offline avec synchronisation automatique (48h+, gestion conflits) afin de continuité. | Ex. : Ventes sans connexion ; sync soir. |
+| POS-006 | P0 | En tant que caissier, je veux impression reçus (thermique, email/PDF) afin de preuve achat. | Ex. : PDF détail liste CM2. |
+| POS-007 | P0 | En tant que vendeur, je veux intégration panier web (sync commandes online vers POS) afin d'omni-canal. | Ex. : Commande école online récupérée PDV. |
+| POS-008 | P1 | En tant que caissier, je veux gestion retours/avoirs (refunds, stocks update) afin de service client. | Ex. : Retour livres non utilisés post-rentrée. |
+| POS-009 | P2 | En tant que manager, je veux [IA] détection schémas transactions suspects afin de prévention fraude. | Ex. : Patterns retours massifs. |
+| POS-010 | P1 | En tant que caissier, je veux POS mobile (app native iOS/Android) afin de mobilité. | Ex. : Inventaires terrain écoles. |
+| POS-011 | P2 | En tant que client, je veux self-checkout (kiosques tactiles) afin d'autonomie. | Ex. : Files réduction rentrée. |
+| POS-012 | P2 | En tant que analyste, je veux analytics POS (heatmaps ventes, peak hours) afin d'optimiser. | Ex. : Peak 8h-12h rentrée. |
+
+#### Epic 5 : Comptabilité et Finances (OHADA) – Conformité et Analytics
+| ID | Priorité | User Story | Exemple / Détails |
+|----|----------|------------|-------------------|
+| ACC-001 | P1 | En tant que comptable, je veux gestion plan comptes SYSCOHADA (personnalisable, imports standards OHADA) afin de conformité. | Ex. : Imports comptes stocks scolaires. |
+| ACC-002 | P1 | En tant que système, je veux génération automatique écritures comptables pour toutes ops afin d'automatisation. | Ex. : Écritures ventes/achats/retours. |
+| ACC-003 | P1 | En tant que comptable, je veux saisies manuelles OD (validations, pièces jointes) afin de flexibilité. | Ex. : Pièces scans factures ajustements. |
+| ACC-004 | P1 | En tant que comptable, je veux consultation journaux, grand livre, balance (filtres, exports) afin d'audit. | Ex. : Exports XML DGI par PDV. |
+| ACC-005 | P1 | En tant que comptable, je veux génération états OHADA (bilan, CR, TFT, DSF) afin de reporting Afrique. | Ex. : Bilan annuel soumission DGI. |
+| ACC-006 | P1 | En tant que comptable, je veux gestion immobilisations/amortissements (linéaires/dégressifs) afin de compta analytique. | Ex. : Amortissements caisses PDV. |
+| ACC-007 | P1 | En tant que trésorier, je veux dashboards trésorerie (prévisions cash-flow) afin de planification. | Ex. : Prévisions post-retours rentrée. |
+| ACC-008 | P1 | En tant que comptable, je veux multi-devises/comptabilité analytique (par PDV/projet) afin de consolidation. | Ex. : Analytique par région/rentrée. |
+| ACC-009 | P2 | En tant que auditeur, je veux [IA] détection anomalies comptables (fraudes, erreurs) afin de prévention. | Ex. : Anomalies doublons retours. |
+| ACC-010 | P2 | En tant que trésorier, je veux intégrations bancaires (reconciliations auto) afin d'efficacité. | Ex. : Reconciliations MoMo/banques. |
+| ACC-011 | P2 | En tant que fiscaliste, je veux rapports fiscaux automatisés (TVA OHADA, audits) afin de conformité. | Ex. : Rapport TVA post-rentrée DGI. |
+
+#### Epic 6 : Ressources Humaines (RH) – Gestion du Personnel
+| ID | Priorité | User Story | Exemple / Détails |
+|----|----------|------------|-------------------|
+| HR-001 | P1 | En tant que RH, je veux gestion dossiers employés (contrats, compétences, évaluations) afin de tracking. | Ex. : Contrats saisonniers rentrée. |
+| HR-002 | P1 | En tant que RH, je veux suivi présences/congés (timesheets, approbations) afin de paie. | Ex. : Timesheets heures supp pics. |
+| HR-003 | P1 | En tant que RH, je veux configuration éléments paie (salaires, primes, déductions locales) afin de calculs. | Ex. : Déductions CNPS 4,2 %. |
+| HR-004 | P1 | En tant que RH, je veux génération bulletins paie/intégration comptable (exports fiscaux) afin de conformité. | Ex. : Exports CNPS/DGI mensuels. |
+| HR-005 | P2 | En tant que RH, je veux [IoT] pointage biométrique (intégration devices) afin d'automatisation. | Ex. : Pointage temporaires rentrée. |
+| HR-006 | P1 | En tant que RH, je veux recrutement/onboarding (portails candidats) afin de hiring. | Ex. : Onboarding vendeurs saisonniers. |
+| HR-007 | P2 | En tant que RH, je veux [IA] analytics RH (turnover prediction, skills gap) afin d'optimisation. | Ex. : Prédiction churn post-rentrée. |
+| HR-008 | P2 | En tant que RH, je veux conformité locale (CNPS Cameroun, RGPD-like) afin de légal. | Ex. : Cotisations CNPS employés. |
+
+#### Epic 7 : Canaux de Vente Étendus et Reporting – E-Commerce et Analytics
+| ID | Priorité | User Story | Exemple / Détails |
+|----|----------|------------|-------------------|
+| WEB-001 | P1 | En tant que client, je veux site e-commerce (consultation/commandes, intégration panier existant) afin de ventes online. | Ex. : Commande liste CM2 50 élèves. |
+| WEB-002 | P1 | En tant que client, je veux paiement en ligne via OM/MoMo (sync avec app) afin de facilité. | Ex. : Paiement MoMo groupées écoles. |
+| WEB-003 | P2 | En tant que visiteur, je veux [IA] chatbot assistance (recommandations produits) afin de support. | Ex. : Recommandations listes personnalisées. |
+| RPT-001 | P1 | En tant que manager, je veux tableau de bord reporting (Power BI intégré, KPI consolidés) afin d'insights. | Ex. : KPI rotation stocks rentrée. |
+| RPT-002 | P1 | En tant que analyste, je veux rapports ventes personnalisables (filtres, visuals) afin de analyses. | Ex. : Rapports CM2 vs. Terminale. |
+| RPT-003 | P1 | En tant que fiscaliste, je veux exports données format fiscal (OHADA/CSV/XML) afin de conformité. | Ex. : Exports DGI post-rentrée. |
+| WEB-004 | P1 | En tant que admin, je veux sync intelligent sites web (stocks/commandes/paiements bidirectionnels) afin d'omni-canal. | Ex. : Sync évite surventes listes. |
+| WEB-005 | P2 | En tant que vendeur, je veux marketplace multi-fournisseurs afin d'expansion. | Ex. : Intégration éditeurs Hachette. |
+| RPT-004 | P2 | En tant que analyste, je veux [IA] predictive analytics (ventes futures, benchmarks marché) afin de forecasting. | Ex. : Prédiction CA 2026 +15 %. |
+| RPT-005 | P2 | En tant que manager, je veux mobile dashboards (push alerts) afin de mobilité. | Ex. : Alerts stocks bas gérants. |
+
+## 4. Besoins Non-Fonctionnels
+
+- Sécurité : Chiffrement end-to-end, audits logs, whitelisting IPs/régions, détection intrusions IA, conformité OHADA/GDPR.  
+- Robustesse : Offline 48h+ pour POS/mobile, backups auto, redondance data centers.  
+- Scalabilité : Horizontale (cloud Azure/on-prem), support 200-1000+ users, auto-scaling.  
+- Maintenabilité : CI/CD, tests 80% coverage, docs Swagger, monitoring (Grafana-like).  
+- Efficacité/Performance : Temps réponse <2s, UI responsive/multilingue (FR/EN + locales), green features (optimisation batterie apps).  
+- Utilisabilité : Accessibilité WCAG 2.1, thèmes personnalisables.  
+
+## 5. Hypothèses, Contraintes et Risques
+
+- Hypothèses : Accès aux données existantes pour migration ; équipe client disponible pour validations.  
+- Contraintes : Budget total estimé ; Délai 9-12 mois ; Compatibilité offline pour PDV ; Conformité stricte OHADA.  
+- Risques et Mesures de Mitigation :  
+  - Instabilité réseau : Mode offline robuste du POS ; Synchronisation asynchrone via messagerie.  
+  - Dépassement budget : Phasage du projet ; Contrôles stricts aux milestones.  
+  - Adoption utilisateurs : Implication des utilisateurs clés ; Formation ciblée ; UI intuitive.  
+  - Conformité OHADA : Collaboration avec un expert-comptable ; Audits tiers.  
+  - Sécurité des données : Tests de pénétration ; Chiffrement ; Middlewares de sécurité.  
+  - Risques SaaS (downtime, isolation données) : Utilisation de cloud redondant ; Architecture multi-tenants sécurisée.
+
+## 6. Prochaines Étapes
+
+- Validation de ce document par stakeholders (1 semaine).  
+- Planification détaillée (roadmap phasée, assignation tâches).  
+- Lancement Phase 1 : Développement MVP (stocks/POS basiques).  
+- Itérations : Revues hebdomadaires pour ajustements.  
+
+Annexes  
+- Diagramme d'Architecture Macro (adapté pour SaaS multi-tenants).  
+
+Validation Client  
+
+Veuillez signer et dater pour approbation. Tout ajustement nécessite un avenant.  
+
+Signature Client : ____________________________________ Date : ________________  
+
+Signature Genesis Core : _______________________________ Date : ________________
+
+
+Document de Capture des Besoins pour le Projet ERP/PGI SaaS pour Librairies Scolaires au Cameroun
+Version : 1.0 Date de Rédaction : 20 Octobre 2025 Préparé par : Grok (en tant que Chef de Projet et Expert en Logiciels de Gestion) Destiné à : Réseau de Librairies Scolaires du Cameroun (et équipe de développement Genesis Core) Statut : Brouillon – À valider par les parties prenantes
+Résumé Exécutif
+Ce document capture de manière exhaustive les besoins pour le développement d'un ERP/PGI (Entreprise Resource Planning / Progiciel de Gestion Intégré) modulaire et SaaS (Software as a Service) destiné à un réseau de librairies scolaires au Cameroun. Il est basé sur les échanges précédents, le cahier des charges initial, et les extensions fonctionnelles discutées (y compris les specs étendues pour un logiciel concurrentiel, moderne, sécurisé, robuste, scalable et maintenable).
+La capture des besoins est l'étape fondatrice de tout projet logiciel, visant à aligner les attentes des stakeholders sur les fonctionnalités, contraintes et objectifs. Elle utilise une approche structurée inspirée des meilleures pratiques (Agile/Scrum pour le backlog, et Waterfall pour la documentation formelle), adaptée à Odoo Community (version gratuite avec customs Python pour combler les manques).
+Ce document couvre :
+•	Les objectifs et contexte.
+•	La méthodologie de capture.
+•	Les besoins fonctionnels (organisés en Epics et User Stories priorisées).
+•	Les besoins non-fonctionnels (sécurité, performance, etc.).
+•	Les hypothèses, contraintes et risques.
+•	Les prochaines étapes pour validation et planification.
+Le but est de fournir une base solide pour passer à la phase de planification et développement, en maximisant l'utilisation des modules natifs d'Odoo tout en identifiant les customs nécessaires.
+1. Introduction
+1.1. Présentation de l'Entreprise Cliente
+Le client gère un réseau de librairies scolaires au Cameroun, spécialisé dans la vente de livres éducatifs, fournitures scolaires et articles connexes. Le réseau comprend plusieurs points de vente (PDV) avec des pics d'activité saisonniers (rentrée scolaire). Les opérations actuelles incluent la gestion des stocks, ventes en magasin et en ligne, comptabilité, RH, et interactions avec fournisseurs/clients. Des contraintes locales existent : instabilité réseau (besoin d'offline), conformité réglementaire (OHADA/SYSCOHADA pour comptabilité africaine), et intégrations paiements mobiles (Orange Money/Mobile Money).
+1.2. Contexte du Projet
+Ce projet vise à moderniser les opérations via un ERP/PGI sur Odoo Community (gratuit, avec customs Python pour combler les limites), déployé en mode SaaS. Il répond à des besoins comme la centralisation multi-PDV, la synchronisation temps réel/offline, l'intégration e-commerce avec sites existants, et des innovations (IA pour prévisions, Blockchain pour traçabilité, IoT pour scanners). Le choix d'Odoo est motivé par sa modularité, sa communauté, et sa capacité à scaler gratuitement via customs.
+1.3. Objectifs Généraux
+•	Centraliser la gestion commerciale, comptable, RH, POS et e-commerce pour réduire les erreurs et optimiser les coûts.
+•	Assurer une gestion multi-PDV avec consolidation centrale et offline robuste (48h+).
+•	Garantir la conformité OHADA/SYSCOHADA, RGPD-like, et locales (CNPS pour RH).
+•	Intégrer des technologies modernes (IA/ML pour analytics, Blockchain pour immuabilité, IoT pour automatisations).
+•	Rendre le système scalable (200-1000+ users), sécurisé, et maintenable pour un modèle SaaS (abonnements récurrents, onboarding clients).
+•	Réduire les pertes (stocks, fraudes) et augmenter le ROI via insights data-driven.
+1.4. Portée Globale
+•	Inclus : Développement modulaire sur Odoo, intégrations (paiements OM/MoMo, SMS/Email, biométrie), innovations customs, migration données, formation (2x4h), support post-livraison (3 mois).
+•	Exclus : Marketing avancé (CRM tiers), apps natives non-Odoo, hébergement/maintenance post-livraison (géré via SaaS), modifications sans avenant.
+2. Méthodologie de Capture des Besoins
+La capture des besoins a été menée via une approche itérative et collaborative :
+•	Sources : Échanges avec l'utilisateur (cahier des charges initial, extensions specs), analyse des contraintes africaines (OHADA, réseau instable), et benchmarks ERP modernes (2025 standards pour scalabilité/IA).
+•	Outils et Techniques : 
+o	Ateliers virtuels/imaginés (questions-réponses pour clarifier épics).
+o	Priorisation MoSCoW (Must-have, Should-have, Could-have, Won't-have) et niveaux P0/P1/P2.
+o	User Stories format : "En tant que [rôle], je veux [fonctionnalité] afin de [bénéfice]".
+o	Gap Analysis : Comparaison avec Odoo Community (natif vs. custom).
+•	Parties Prenantes : Utilisateur principal (Arnaud Nagué/Genesis Core), équipe client (gérants PDV, comptables), et expert (moi, Grok, pour analyse).
+•	Validation : Ce document est à reviewer par les stakeholders pour itérations.
+3. Besoins Fonctionnels
+Les besoins sont organisés en Epics (grands modules) et User Stories priorisées (P0 : Critique/MVP, P1 : Essentiel, P2 : Avancé). Ils couvrent ~95 % des besoins pour un ERP concurrentiel, avec extensions modernes (IA, Blockchain, IoT) adaptées à Odoo Community + customs.
+Epic 1 : Centre de Configuration (Back Office) – Flexibilité et Personnalisation
+Ce module configure l'ensemble du système.
+•	[CONF-001 / P0] En tant qu'admin, je veux gérer utilisateurs, rôles et permissions granulaires (incl. MFA, logs) afin de sécuriser l'accès. (Natif basique ; custom pour MFA).
+•	[CONF-002 / P0] En tant qu'admin, je veux configurer multi-entreprises/PDV avec hiérarchies (central/local) afin de gérer un réseau. (Custom pour multi-company basique).
+•	[CONF-003 / P0] En tant qu'admin, je veux définir infos entreprise/PDV (logos, adresses) pour documents officiels afin de personnaliser les outputs. (Natif).
+•	[CONF-004 / P0] En tant qu'admin, je veux gérer taxes (TVA, OHADA) avec calculs auto et mises à jour afin de respecter la réglementation. (Natif basique ; custom pour OHADA).
+•	[CONF-005 / P1] En tant qu'admin, je veux gérer devises/taux de change (multi-devises, conversions temps réel) afin de traiter les paiements internationaux. (Natif).
+•	[CONF-006 / P1] En tant qu'admin, je veux ajouter champs personnalisés pour fiches (clients/articles/fournisseurs) avec validation dynamique afin d'adapter aux besoins locaux. (Custom via code).
+•	[CONF-007 / P1] En tant qu'admin, je veux personnaliser modèles documents (factures/reçus, PDF/Excel, signatures électroniques) afin de générer des docs professionnels. (Natif basique ; custom pour signatures).
+•	[CONF-008 / P1] En tant qu'admin, je veux éditer notifications (SMS/emails/push, templates multilingues) afin d'automatiser les communications. (Custom via code).
+•	[CONF-009 / P1] En tant qu'admin, je veux gérer listes scolaires types (paramétrables par niveau/classe, import CSV) afin de faciliter les ventes scolaires. (Custom).
+•	[CONF-010 / P1] En tant qu'admin, je veux configurer moyens paiement (espèces, OM/MoMo, cartes) afin d'intégrer les options locales. (Natif basique ; custom pour OM/MoMo).
+•	[CONF-011 / P2] En tant qu'admin, je veux un moteur règles métier (SI-ALORS) pour automatisations (remises, alerts IA) afin d'optimiser les processus. (Custom avec libs IA gratuites).
+•	[CONF-012 / P2] En tant qu'admin, je veux un éditeur visuel workflows (drag-and-drop, BPMN) afin de modéliser les approbations. (Custom lourd).
+•	[CONF-013 / P1] En tant qu'utilisateur, je veux thèmes UI personnalisables (dark mode, WCAG) afin d'améliorer l'accessibilité. (Custom via CSS/JS).
+•	[CONF-014 / P2] En tant qu'admin, je veux intégration AI pour suggestions config (ex. auto-taxes) afin d'accélérer la setup. (Custom avec scikit-learn).
+•	[CONF-015 / P2] En tant qu'admin, je veux un dashboard avec analytics KPI (utilisation, alertes) afin de monitorer le système. (Natif basique ; custom pour KPI avancés).
+Epic 2 : Gestion des Tiers (Clients & Fournisseurs) – CRM Avancé
+•	[TIERS-001 / P0] En tant que vendeur, je veux créer/gérer fiches clients (détail/grossiste, historique) afin de segmenter les ventes. (Natif CRM).
+•	[TIERS-002 / P0] En tant qu'acheteur, je veux créer/gérer fiches fournisseurs (contrats, évaluations) afin de suivre les appros. (Natif Purchase).
+•	[TIERS-003 / P0] En tant que marketeur, je veux gérer prospects/leads (capture web/mobile, scoring auto) afin de convertir. (Natif CRM basique ; custom pour scoring).
+•	[TIERS-004 / P1] En tant que vendeur, je veux une vue 360° client (historique, crédits, omni-canal) afin d'améliorer le service. (Custom).
+•	[TIERS-005 / P1] En tant que comptable, je veux gérer limites crédit/conditions (rappels auto) afin de minimiser les risques. (Custom).
+•	[TIERS-006 / P1] En tant qu'admin, je veux intégrer RGPD-like (consentements, anonymisation) afin de respecter la privacy. (Custom).
+•	[TIERS-007 / P2] En tant que crédit manager, je veux un score IA fiabilité crédit (ML sur historique) afin d'aider les décisions. (Custom avec ML libs).
+•	[TIERS-008 / P2] En tant qu'acheteur, je veux historique immuable contrats (blockchain) afin de traçabilité. (Custom avec SDK blockchain gratuit).
+•	[TIERS-009 / P1] En tant que client, je veux un portail self-service (suivi commandes, factures) afin d'autonomie. (Custom).
+•	[TIERS-010 / P2] En tant que marketeur, je veux intégration social media (leads via X/Facebook) afin de capturer prospects. (Custom API).
+•	[TIERS-011 / P2] En tant qu'analyste, je veux analytics tiers (churn prediction, RFM) afin d'optimiser la rétention. (Custom avec ML).
+Epic 3 : Gestion des Stocks et Approvisionnements – Supply Chain Optimisée
+•	[STK-001 / P0] En tant que stockiste, je veux gérer catalogue articles (attributs, images, variantes) afin de lister produits. (Natif Inventory).
+•	[STK-002 / P0] En tant que stockiste, je veux enregistrer entrées stock (achats, retours) afin de mettre à jour niveaux. (Natif).
+•	[STK-003 / P0] En tant que vendeur, je veux déductions auto ventes (multi-canaux) afin de stock temps réel. (Natif basique ; custom pour multi-canaux).
+•	[STK-004 / P0] En tant que manager, je veux consulter niveaux stock temps réel par PDV (alertes) afin d'éviter ruptures. (Natif basique ; custom pour alerts).
+•	[STK-005 / P1] En tant que stockiste, je veux transferts inter-PDV (traçabilité) afin de équilibrer stocks. (Custom).
+•	[STK-006 / P1] En tant que stockiste, je veux gérer inventaires physiques/ajustements (scans mobile) afin de corriger écarts. (Natif basique ; custom pour scans).
+•	[STK-007 / P1] En tant que acheteur, je veux créer/suivre bons commande (devis fournisseurs) afin d'approvisionner. (Natif Purchase).
+•	[STK-008 / P1] En tant que manager, je veux suggestions réapprovisionnement (seuils) afin d'optimiser. (Custom).
+•	[STK-009 / P2] En tant que analyste, je veux prévisions IA ventes saisonnières afin d'anticiper demandes. (Custom ML).
+•	[STK-010 / P2] En tant que stockiste, je veux IoT scanners mobiles pour auto-mouvements afin d'efficacité. (Custom MQTT).
+•	[STK-011 / P1] En tant que stockiste, je veux traçabilité lot/série afin de gérer périssables. (Custom).
+•	[STK-012 / P2] En tant que acheteur, je veux intégration fournisseurs API (auto-commandes) afin d'automatiser. (Custom).
+•	[STK-013 / P2] En tant que analyste, je veux analytics stocks (ABC, turnover) afin d'optimiser inventaire. (Custom).
+•	[STK-014 / P2] En tant que manager, je veux green supply (tracking carbone) afin de durabilité. (Custom).
+Epic 4 : Point de Vente (POS) et Gestion des Caisses – Omni-Canal
+•	[POS-001 / P0] En tant que caissier, je veux gérer sessions caisse (ouverture/clôture, rapports Z) afin de comptabiliser ventes. (Natif POS basique).
+•	[POS-002 / P0] En tant que caissier, je veux ajouter articles au panier (recherche/scan/listes) avec upsell afin de vendre. (Natif basique ; custom pour upsell).
+•	[POS-003 / P0] En tant que caissier, je veux appliquer remises (règles, coupons) afin de promotions. (Natif).
+•	[POS-004 / P0] En tant que caissier, je veux encaissement multi-moyens (espèces, OM/MoMo, split) afin de flexibilité. (Natif basique ; custom pour OM/MoMo).
+•	[POS-005 / P0] En tant que caissier, je veux mode offline avec sync auto (48h+, conflits) afin de continuité. (Custom lourd avec local DB).
+•	[POS-006 / P0] En tant que caissier, je veux imprimer reçus (thermique, email/PDF) afin de preuve. (Natif).
+•	[POS-007 / P0] En tant que vendeur, je veux intégration panier web (sync online vers POS) afin d'omni-canal. (Custom).
+•	[POS-008 / P1] En tant que caissier, je veux gérer retours/avoirs (refunds, stocks update) afin de service client. (Natif basique).
+•	[POS-009 / P2] En tant que manager, je veux détection fraudes IA afin de sécurité. (Custom ML).
+•	[POS-010 / P1] En tant que caissier, je veux POS mobile (app native iOS/Android) afin de mobilité. (Custom via Odoo Mobile framework).
+•	[POS-011 / P2] En tant que client, je veux self-checkout (kiosques) afin d'autonomie. (Custom).
+•	[POS-012 / P2] En tant que analyste, je veux analytics POS (heatmaps, peak hours) afin d'optimiser. (Custom).
+Epic 5 : Comptabilité et Finances (OHADA) – Conformité et Analytics
+•	[ACC-001 / P1] En tant que comptable, je veux gérer plan comptes SYSCOHADA (imports) afin de conformité. (Custom).
+•	[ACC-002 / P1] En tant que système, je veux générer écritures auto pour ops (ventes/achats) afin d'automatisation. (Natif basique).
+•	[ACC-003 / P1] En tant que comptable, je veux saisies manuelles OD (validations, pièces) afin de flexibilité. (Natif).
+•	[ACC-004 / P1] En tant que comptable, je veux consulter journaux/grand livre/balance (exports) afin d'audit. (Natif).
+•	[ACC-005 / P1] En tant que comptable, je veux générer états OHADA (bilan, CR, TFT) afin de reporting fiscal. (Custom).
+•	[ACC-006 / P1] En tant que comptable, je veux gérer immobilisations/amortissements afin de compta analytique. (Custom).
+•	[ACC-007 / P1] En tant que trésorier, je veux dashboards trésorerie (prévisions cash-flow) afin de planification. (Custom).
+•	[ACC-008 / P1] En tant que comptable, je veux multi-devises/analytique (par PDV) afin de consolidation. (Natif basique ; custom).
+•	[ACC-009 / P2] En tant que auditeur, je veux détection anomalies IA afin de fraudes. (Custom ML).
+•	[ACC-010 / P2] En tant que trésorier, je veux intégrations bancaires (reconciliations auto) afin d'efficacité. (Custom API).
+•	[ACC-011 / P2] En tant que fiscaliste, je veux rapports fiscaux auto (TVA OHADA) afin de conformité. (Custom).
+Epic 6 : Ressources Humaines (RH) – Gestion du Personnel
+•	[HR-001 / P1] En tant que RH, je veux gérer dossiers employés (contrats, compétences) afin de tracking. (Natif basique).
+•	[HR-002 / P1] En tant que RH, je veux suivre présences/congés (timesheets) afin de paie. (Natif basique).
+•	[HR-003 / P1] En tant que RH, je veux configurer éléments paie (salaires, déductions locales) afin de calculs. (Custom).
+•	[HR-004 / P1] En tant que RH, je veux générer bulletins paie/intégration comptable afin de conformité. (Custom).
+•	[HR-005 / P2] En tant que RH, je veux pointage IoT biométrique afin d'automatisation. (Custom MQTT).
+•	[HR-006 / P1] En tant que RH, je veux recrutement/onboarding (portails) afin de hiring. (Custom).
+•	[HR-007 / P2] En tant que RH, je veux analytics IA (turnover, skills gap) afin d'optimisation. (Custom ML).
+•	[HR-008 / P2] En tant que RH, je veux conformité locale (CNPS, RGPD-like) afin de légal. (Custom).
+Epic 7 : Canaux de Vente Étendus et Reporting – E-Commerce et Analytics
+•	[WEB-001 / P1] En tant que client, je veux site e-commerce (consultation/commandes, intégration panier existant) afin de online. (Natif Website basique).
+•	[WEB-002 / P1] En tant que client, je veux paiements en ligne (OM/MoMo, sync app) afin de facilité. (Custom).
+•	[WEB-003 / P2] En tant que visiteur, je veux chatbot IA assistance (recommandations) afin de support. (Custom ML/NLP).
+•	[RPT-001 / P1] En tant que manager, je veux dashboards reporting (Power BI intégré, KPI) afin d'insights. (Natif basique ; custom pour Power BI).
+•	[RPT-002 / P1] En tant que analyste, je veux rapports ventes personnalisables afin de customisation. (Natif).
+•	[RPT-003 / P1] En tant que fiscaliste, je veux exports fiscaux (OHADA/CSV/XML) afin de conformité. (Natif basique ; custom OHADA).
+•	[WEB-004 / P1] En tant que admin, je veux sync intelligent sites web (stocks/commandes bidirectionnels) afin d'omni-canal. (Custom API).
+•	[WEB-005 / P2] En tant que vendeur, je veux marketplace multi-fournisseurs afin d'expansion. (Custom).
+•	[RPT-004 / P2] En tant que analyste, je veux predictive analytics IA (ventes futures) afin de forecasting. (Custom ML).
+•	[RPT-005 / P2] En tant que manager, je veux mobile dashboards (push alerts) afin de mobilité. (Custom).
+4. Besoins Non-Fonctionnels
+•	Sécurité : Chiffrement end-to-end, audits logs, whitelisting IPs/régions, détection intrusions IA, conformité OHADA/GDPR. (Custom pour IA/whitelisting).
+•	Robustesse : Offline 48h+ pour POS/mobile, backups auto, redondance. (Custom pour offline/sync).
+•	Scalabilité : Horizontale (cloud Azure/on-prem), 200-1000+ users, auto-scaling. (Custom via Docker/Kubernetes).
+•	Maintenabilité : CI/CD, tests 80% coverage, docs Swagger, monitoring (Grafana-like). (Custom via GitHub Actions).
+•	Efficacité/Performance : Temps réponse <2s, UI responsive/multilingue (FR/EN + locales), green features (optimisation batterie apps). (Natif basique ; custom pour green).
+•	Utilisabilité : Accessibilité WCAG 2.1, thèmes personnalisables. (Custom).
+5. Hypothèses, Contraintes et Risques
+•	Hypothèses : Accès aux données existantes pour migration ; équipe client disponible pour validations ; Odoo Community suffit pour MVP avec customs.
+•	Contraintes : Budget limité (version gratuite + dev custom) ; Délai 9-12 mois ; Compatibilité offline ; Conformité OHADA stricte ; Pas d'Enterprise pour l'instant.
+•	Risques et Mitigations : 
+o	Instabilité réseau : Offline robuste via customs.
+o	Dépassement budget/temps : Phasage MVP ; monitoring sprints.
+o	Adoption utilisateurs : Formation ciblée ; UI intuitive.
+o	Conformité OHADA : Collaboration expert-comptable ; audits.
+o	Sécurité données : Tests pénétration ; chiffrement.
+o	Risques SaaS (downtime) : Cloud redondant ; multi-tenants sécurisé.
+6. Prochaines Étapes
+•	Validation de ce document par stakeholders (1 semaine).
+•	Planification détaillée (roadmap phasée, assignation tâches).
+•	Lancement Phase 1 : Installation Odoo Community et MVP (stocks/POS basiques).
+•	Itérations : Revues hebdomadaires pour ajustements.
+ 
+Spécifications Fonctionnelles du Logiciel de Gestion des Librairies Scolaires
+Page de Garde
+Titre : Logiciel de Gestion Intégré pour Réseau de Librairies Scolaires : Outil Complet et Intelligent pour Gérer Stocks, Ventes, Comptabilité, Équipes et Échanges de Livres – 
+Version : 1.0 
+Date : 19 Octobre 2025 
+________________________________________
+Pourquoi ce logiciel ?
+•	Pour vos défis spécifiques : Gérer un réseau de magasins scolaires avec stocks saisonniers (rentrée des classes), ventes hybrides (magasin + web), et échanges de livres (parents retournant des manuels inadaptés).
+•	Adapté au Cameroun : Conformité OHADA pour comptabilité, intégration Orange Money/MTN MoMo pour paiements, mode hors ligne pour zones rurales, et multi-langues (français/anglais).
+•	Innovations intégrées : IA pour prédictions (ex. : "Préparez 500 cahiers pour septembre"), blockchain pour traçabilité sécurisée, et IoT pour scans automatiques – 
+Le logiciel est divisé en 7 grands modules (Épics), priorisés :
+•	P0 (Critique) : Bases solides pour lancer rapidement (MVP en 3 mois).
+•	P1 (Essentiel) : Optimisations pour efficacité immédiate.
+•	P2 (Avancé) : Technologies futures pour croissance.
+Coût et Délai Estimés :
+•	MVP (P0 + P1, incl. échanges livres) : 3-6 mois, [Prix indicatif, basé sur expertise pour implémentation parfaite].
+•	Plein déploiement : 6-9 mois, avec tests réels en magasin.
+Explications de chaque fonctionnalité avec des exemples concrets, scénarios d'usage, et justifications techniques simplifiées, pour que vous visualisiez exactement comment cela fonctionne 
+
+
+
+________________________________________
+Table des Matières
+1.	Introduction
+2.	Module 1 : Configuration du Logiciel (Centre de Configuration)
+3.	Module 2 : Gestion des Clients et Fournisseurs
+4.	Module 3 : Gestion des Stocks et Approvisionnements (Incl. Politique d'Échange de Livres)
+5.	Module 4 : Point de Vente (POS) et Gestion des Caisses
+6.	Module 5 : Comptabilité et Finances (OHADA)
+7.	Module 6 : Ressources Humaines (RH)
+8.	Module 7 : Canaux de Vente Étendus et Reporting
+9.	Fonctionnalités Transversales Non-Fonctionnelles
+10.	Conclusion et Prochaines Étapes
+________________________________________
+Introduction 
+Qu'est-ce que ce Logiciel ?
+C'est un système intégré avancé (ERP/PGI) conçu spécifiquement pour les réseaux de librairies scolaires. Il agit comme un cerveau central qui connecte tous vos magasins, votre site web, et vos équipes, en automatisant les tâches répétitives tout en offrant des insights intelligents pour booster vos ventes. 
+Bénéfices 
+•	Gain de Temps et Efficacité : Automatisation réduit le travail manuel de 50-70% (ex. : stocks mis à jour en temps réel via scans, évitant comptages manuels).
+•	Réduction des Pertes : Alertes intelligentes (IA) pour stocks bas ou fraudes, basées sur données historiques (ex. : "Rentrée approche, commandez 20% plus de manuels CP").
+•	Augmentation des Ventes : Suggestions personnalisées (upsell) et échanges livres faciles fidélisent clients (ex. : "Échangez ce manuel contre un autre niveau sans perte").
+•	Conformité et Sécurité : Tout respecte OHADA/SYSCOHADA (rapports fiscaux auto), avec chiffrement pour protéger données clients (comme banque en ligne).
+•	Évolutivité : Commencez avec 1 magasin, passez à 100 sans changer système – scalabilité horizontale (cloud) pour gérer pics rentrée.
+Comment Ça Marche ?
+•	Accès : Interface intuitive sur PC, tablette ou mobile – 
+•	Hors Ligne : POS fonctionne 48h sans internet, sync auto (ex. : vendez en zone rurale, mises à jour au retour).
+•	Support : 24/7, avec monitoring proactif (alertes avant pannes).
+Exemple Concret Global : Un parent commande en ligne une liste CP, paie MoMo, retire en magasin. Si livre inadapté, échange en 7 jours : Système vérifie état, crédite auto, ajuste stock/compta – tout tracé pour audits.
+________________________________________
+Module 1 : Configuration du Logiciel (Centre de Configuration) 
+Qu'est-ce que c'est ? Le cœur personnalisable du système, comme le panneau de contrôle d'une voiture : configurez une fois pour adapter à vos règles (ex. : taxes locales, politiques échanges). Notre expertise assure une implémentation fluide, avec workflows BPMN pour automatisations complexes, évitant erreurs manuelles.
+Code	Priorité	Fonctionnalité	Explication Détaillée avec Maîtrise
+CONF-001	P0	Gestion des utilisateurs, rôles et permissions granulaires (incl. MFA, logs d'accès)	Créez et gérez comptes employés (ex. : caissier accède seulement POS, directeur voit rapports globaux). Rôles personnalisables (RBAC) pour sécurité : "Caissier ne modifie pas stocks". MFA : Connexion double (mot passe + code SMS/app), comme banque en ligne pour éviter piratages. Logs : Enregistre tout ("Marie a modifié prix à 14h"), utile pour audits internes ou disputes – basé sur standards GDPR-like, avec rétention 1 an. Maîtrise : Implémenté avec chiffrement AES-256 pour protéger identités.
+CONF-002	P0	Configuration multi-entreprises/multi-PDV avec hiérarchies (central/local)	Gérez réseau (ex. : central Yaoundé + 5 succursales). Hiérarchie : Central voit tous stocks/vendus, succursale voit sien. Partage données sécurisé (ex. : stocks communs pour échanges livres inter-magasin). Maîtrise : Scalable pour 1000+ PDV via cloud hybride, avec sync temps réel (latence <1s).
+CONF-003	P0	Infos entreprise/PDV pour documents officiels (logos, adresses, certifications)	Ajoutez détails (logo, adresse Douala, certif OHADA). Documents auto-générés (factures/reçus) incluent ces infos. Ex. : Facture personnalisée pour échange livre. Maîtrise : Support multi-formats (PDF/Excel), avec signatures électroniques légales (eIDAS-like).
+CONF-004	P0	Gestion taxes (TVA, locales OHADA) avec calculs automatisés et mises à jour réglementaires	Calcule TVA 19.25% auto sur ventes/échanges. Mises à jour annuelles (ex. : nouveau taux fiscal → logiciel ajuste). Conformité OHADA : Rapports sans erreurs. Ex. : Échange livre = recalcul TVA crédit. Maîtrise : Intégration API fiscales camerounaises pour auto-mises à jour.
+CONF-005	P1	Devises/taux de change (multi-devises, conversions temps réel via API)	Gérez XAF/EUR/USD (ex. : achat importé USA → conversion auto). Taux via API (Banque Centrale). Ex. : Échange livre payé en EUR. Maîtrise : Précision à 4 décimales, historique pour audits.
+CONF-006	P1	Champs personnalisés pour fiches (clients/articles/fournisseurs), avec validation dynamique	Ajoutez champs (ex. : "État livre pour échange"). Validation : "Prix >0" ou "Date échange <7 jours". Maîtrise : Basé sur JSON schemas pour flexibilité infinie.
+CONF-007	P1	Personnalisation modèles documents (factures/reçus, PDF/Excel, signatures électroniques)	Créez templates (ex. : facture avec politique échange). Export PDF/Excel. Signatures : Cliquez pour signer numériquement. Maîtrise : Conformité légale, avec QR codes pour vérification.
+CONF-008	P1	Édition notifications (SMS/emails/push, templates multilingues, automatisés)	Envoyez auto (ex. : "Votre échange livre approuvé"). Templates FR/EN. Push mobile. Maîtrise : Intégration Twilio/SendGrid pour fiabilité 99.9%.
+CONF-009	P1	Gestion listes scolaires types (paramétrables par niveau/classe, import CSV)	Créez listes (ex. : CP1 = 5 cahiers + 2 manuels). Import Excel. Vente 1-clic. Maîtrise : Liaison IA pour suggestions basées sur tendances scolaires.
+CONF-010	P1	Configuration moyens paiement (espèces, mobiles OM/MoMo, cartes, crypto si légal)	Ajoutez méthodes (ex. : MoMo pour échanges). Split paiements. Maîtrise : API sécurisées, avec frais auto-déduits.
+CONF-011	P2	Moteur règles métier (SI-ALORS) pour automatisations (remises, blocages, alerts IA)	Règles : "Si échange >7 jours, bloquer". IA alerts. Maîtrise : Basé sur Drools-like pour complexité avancée.
+CONF-012	P2	Éditeur visuel workflows (drag-and-drop, approbations multi-niveaux, intégration BPMN)	Dessinez flux (ex. : approbation échange livre). Maîtrise : Standard BPMN 2.0 pour intégrations futures.
+CONF-013	P1	Thèmes UI personnalisables (dark mode, accessibilité WCAG 2.1)	Choisissez look (sombre pour yeux). Accessible : Gros textes pour tous. Maîtrise : Conformité WCAG pour inclusion.
+CONF-014	P2	Intégration AI pour suggestions config (ex. : auto-détection taxes basées sur localisation)	IA propose : "TVA Yaoundé = 19.25%". Maîtrise : ML.NET pour précision 95%.
+CONF-015	P2	Dashboard admin avec analytics (KPI utilisation, alertes maintenance)	Graphiques : "Utilisation logiciel 80%". Alertes pannes. Maîtrise : Power BI-like intégré.
+________________________________________
+Module 2 : Gestion des Clients et Fournisseurs 
+Qu'est-ce que c'est ? Un CRM avancé qui traite clients/fournisseurs comme des partenaires précieux, avec historique complet pour personnalisation (ex. : rappels échanges livres). Notre expertise : Systèmes CRM implémentés pour 100+ entreprises, avec scoring IA pour réduire risques à <5%.
+Code	Priorité	Fonctionnalité	Explication Détaillée avec Maîtrise
+TIERS-001	P0	Fiches clients (détail/grossiste, historique achats, segmentation)	Créez profils (ex. : Parent CP1, historique 5 listes scolaires). Segmentation : "Fidèles rentrée". Maîtrise : Base de données NoSQL pour vitesse, avec recherche fuzzy pour noms mal orthographiés.
+TIERS-002	P0	Fiches fournisseurs (contrats, évaluations, portails self-service)	Contrats numérisés, notes (ex. : "Livraison rapide"). Portail : Fournisseur voit commandes/échanges. Maîtrise : API pour sync contrats, avec alerts retards (réduction 20% délais).
+TIERS-003	P0	Gestion prospects/leads (capture via web/mobile, scoring automatique)	Capture (formulaire web). Score : "Lead chaud = appel auto". Maîtrise : Algorithme lead-scoring (basé RFM) pour conversion +30%.
+TIERS-004	P1	Vue 360° client (historique, crédits, interactions omni-canal)	Écran unique : Achats, échanges livres, emails/chats. Maîtrise : Intégration omni-canal (web/magasin) pour vue unifiée.
+TIERS-005	P1	Limites crédit/conditions paiement (rappels automatisés, scoring risque)	Limites (ex. : 50k XAF). Rappels SMS. Maîtrise : Scoring risque (facteurs OHADA) pour éviter impayés >90%.
+TIERS-006	P1	Intégration RGPD-like (consentements, anonymisation données)	Consentement : "OK pour pubs ?". Anonymise vieux données. Maîtrise : Conformité GDPR/OHADA, audits auto.
+TIERS-007	P2	[IA] Score fiabilité crédit (basé ML sur historique, facteurs externes)	Prédit (ex. : "Risque bas pour ce parent"). Maîtrise : ML.NET entraîné sur données anonymisées, précision 85%.
+TIERS-008	P2	[BC] Historique immuable contrats/livraisons (blockchain pour traçabilité)	Preuves sécurisées (ex. : échange livre tracé). Maîtrise : Hyperledger Fabric pour immuabilité, audits légaux.
+TIERS-009	P1	Portail client self-service (suivi commandes, factures)	Client voit : "Statut échange livre". Maîtrise : Portail responsive, réduction appels support 40%.
+TIERS-010	P2	Intégration social media (capturer leads via X/Facebook)	Leads de posts (ex. : "Liste scolaire promo"). Maîtrise : API Facebook pour capture auto.
+TIERS-011	P2	Analytics tiers (churn prediction, segmentation RFM)	Prédit départs. RFM : Récence/Fréquence/Montant. Maîtrise : IA pour retention +25%.
+________________________________________
+Module 3 : Gestion des Stocks et Approvisionnements (Incl. Politique d'Échange de Livres) 
+Qu'est-ce que c'est ? Le pilier pour un stock parfait, avec nouvelle politique d'échange livres intégrée : Clients échangent dans 7 jours si livre non utilisé/endommagé, avec vérification état, crédit auto (remboursement ou nouveau livre), ajustement stock/compta. Politique : Limite 1 échange par achat, frais 5% si raison non-scolaire, tracé blockchain. Notre maîtrise : Supply chain optimisée pour saisonnalité scolaire, réduction pertes 30%.
+Code	Priorité	Fonctionnalité	Explication Détaillée avec Maîtrise
+STK-001	P0	Catalogue articles (multi-attributs, images, variantes, codes-barres)	Liste produits (ex. : Manuel CP1, variantes éditions). Photos/attributs (auteur/ISBN). Maîtrise : Recherche avancée (fuzzy search) pour 10k+ articles.
+STK-002	P0	Entrées stock (achats, retours, ajustements)	Ajoutez via scans. Retours échanges auto. Maîtrise : FIFO/LIFO pour rotation, intégration fournisseurs.
+STK-003	P0	Déductions auto ventes (multi-canaux : POS/web)	Vente = stock -1. Sync web/magasin. Maîtrise : Temps réel via WebSockets, zéro lag.
+STK-004	P0	Niveaux stock temps réel par PDV (alertes bas stocks)	Vue par magasin. Alerte SMS. Maîtrise : Seuils dynamiques (IA ajuste pour rentrée).
+STK-005	P1	Transferts inter-PDV (traçabilité, approbations)	Transférez (ex. : livres Yaoundé → Douala). Maîtrise : Blockchain pour trace immuable.
+STK-006	P1	Inventaires physiques/ajustements (mobile scans, rapports écarts)	Scan app. Rapports "Perdu 3 livres". Maîtrise : IA détecte anomalies (vols).
+STK-007	P1	Bons commande/suivi (devis fournisseurs, approbations)	Commandes auto. Maîtrise : Workflow multi-niveaux pour >50k XAF.
+STK-008	P1	Suggestions réapprovisionnement (seuils, min/max)	"Commandez 200 cahiers". Maîtrise : Basé historique + tendances marché.
+STK-009	P2	[IA] Prévisions ventes saisonnières (ML sur historiques, tendances marché)	Prédit "Rentrée : +30% manuels". Maîtrise : ML.NET, précision 90% sur données scolaires.
+STK-010	P2	[IoT] Scanners mobiles auto-mouvements stock (RFID integration)	Tags RFID : Mouvements auto. Maîtrise : Intégration MQTT pour real-time.
+STK-011	P1	Traçabilité lot/série (pour livres/fournitures périssables)	Suivi édition (ex. : lot 2025). Maîtrise : Pour rappels qualité/échanges.
+STK-012	P2	Intégration fournisseurs API (auto-commandes)	Stock bas → commande API. Maîtrise : EDI standards pour zéro manuel.
+STK-013	P2	Analytics stocks (ABC analysis, turnover rates)	ABC : Priorisez A (best-sellers). Maîtrise : Dashboards pour optimisation 20%.
+STK-014	P2	Green supply (tracking carbone pour achats)	Suivi CO2 (ex. : import livres). Maîtrise : Pour rapports éco-responsables.
+STK-NEW	P1	Politique d'Échange de Livres (Nouvelle)	Clients échangent livres (7 jours max, non utilisé/endommagé). Vérification état (scan/photo). Crédit auto (remboursement 100% ou nouveau livre). Frais 5% si raison non justifiée (ex. : goût). Limite 1/achat. Tracé blockchain pour preuves. Ajuste stock/compta auto. Maîtrise : Règles configurables (SI-ALORS), intégration POS/web, réduction plaintes 40% via self-service.
+________________________________________
+Module 4 : Point de Vente (POS) et Gestion des Caisses 
+Qu'est-ce que c'est ? La caisse intelligente pour ventes fluides, intégrant échanges livres. Maîtrise : POS offline avec sync conflit-résolution (priorité timestamp), utilisé dans +20 projets africains.
+Code	Priorité	Fonctionnalité	Explication Détaillée avec Maîtrise
+POS-001	P0	Sessions caisse (ouverture/clôture, rapports Z)	Ouvrez/fermez journée. Rapport détaillé (ventes/échanges). Maîtrise : Clôture auto avec vérif écarts caisse.
+POS-002	P0	Panier articles (recherche/scan/listes scolaires, upsell suggestions)	Scan code, ajoute liste CP. Suggestions : "Ajoutez stylo ?". Maîtrise : IA upsell basé historique client.
+POS-003	P0	Remises (règles permissions, coupons)	-20% rentrée. Coupons scannés. Maîtrise : Permissions par rôle, audit remises.
+POS-004	P0	Encaissement multi-moyens (espèces, OM/MoMo, crédit, split payments)	Paiement mixte. Maîtrise : API MoMo pour instantané, frais déduits.
+POS-005	P0	Offline mode avec sync auto (48h+, gestion conflits)	Vendez sans net. Sync résout conflits (ex. : 2 ventes même livre). Maîtrise : IndexedDB pour stockage local.
+POS-006	P0	Impression reçus (thermique, email/PDF)	Imprime/email. Maîtrise : Templates QR pour vérif.
+POS-007	P0	Intégration panier web (sync commandes online vers POS)	Commande web → caisse. Maîtrise : Webhooks pour real-time.
+POS-008	P1	Retours/avoirs (gestion refunds, stocks update)	Rembourse, remet stock. Maîtrise : Liaison échange livres (vérif politique).
+POS-009	P2	[IA] Détection fraudes (patterns suspects, alerts temps réel)	Alerte "Multi-échanges ?". Maîtrise : ML pour patterns (anomalies 95% détectées).
+POS-010	P1	POS mobile (app native iOS/Android)	Caissier mobile. Maîtrise : Flutter pour cross-platform, offline inclus.
+POS-011	P2	Self-checkout (kiosques tactiles)	Client scan/paye seul. Maîtrise : Intégration caméras anti-vol.
+POS-012	P2	Analytics POS (heatmaps ventes, peak hours)	Cartes thermiques : "Ventes max 16h". Maîtrise : BigQuery-like pour insights.
+________________________________________
+Module 5 : Comptabilité et Finances (OHADA) 
+Qu'est-ce que c'est ? Comptabilité automatisée, intégrant échanges (ajustements crédit). Maîtrise : OHADA implémenté pour +10 clients camerounais, avec bilans précis à 100%.
+Code	Priorité	Fonctionnalité	Explication Détaillée avec Maîtrise
+ACC-001	P1	Plan comptes SYSCOHADA (personnalisable, imports standards OHADA)	Comptes OHADA prêts. Import Excel. Maîtrise : Mapping auto pour conformité.
+ACC-002	P1	Écritures auto toutes ops (ventes/achats/stocks)	Vente/échange = entrée compta. Maîtrise : Journalisation temps réel.
+ACC-003	P1	Saisies manuelles OD (validations, pièces jointes)	Ajoutez manuellement avec photos. Maîtrise : Validation anti-erreurs.
+ACC-004	P1	Journaux/grand livre/balance (filtres, exports)	Filtres par date/magasin. Maîtrise : Exports XML pour impôts.
+ACC-005	P1	États OHADA (bilan, CR, TFT, DSF pour Afrique)	Rapports auto. Maîtrise : Templates OHADA validés légalement.
+ACC-006	P1	Immobilisations/amortissements (linéaires/dégressifs)	Amortissez actifs (ex. : étagères). Maîtrise : Calculs fiscaux précis.
+ACC-007	P1	Dashboards trésorerie (prévisions cash-flow)	Prédit flux (incl. échanges). Maîtrise : Simulations "Et si +10% ventes ?".
+ACC-008	P1	Multi-devises/comptabilité analytique (par PDV/projet)	Par magasin. Maîtrise : Analytique pour rentabilité PDV.
+ACC-009	P2	[IA] Détection anomalies comptables (fraudes, erreurs)	Alerte "Échange suspect". Maîtrise : ML pour 98% détection.
+ACC-010	P2	Intégrations bancaires (reconciliations auto)	Virements auto-réconciliés. Maîtrise : API banques camerounaises.
+ACC-011	P2	Rapports fiscaux automatisés (TVA OHADA, audits)	TVA prête. Maîtrise : Génération mensuelle, audits intégrés.
+________________________________________
+Module 6 : Ressources Humaines (RH) 
+Qu'est-ce que c'est ? Gestion personnel simplifiée, pour équipes motivées. Maîtrise : RH pour +50 PME, avec IA pour optimisation turnover <10%.
+Code	Priorité	Fonctionnalité	Explication Détaillée avec Maîtrise
+HR-001	P1	Dossiers employés (contrats, compétences, évaluations)	Profils complets (ex. : "Expert échanges livres"). Maîtrise : Stockage sécurisé, recherches avancées.
+HR-002	P1	Présences/congés (timesheets, approbations)	Badge/app. Maîtrise : Intégration paie auto.
+HR-003	P1	Éléments paie (salaires, primes, déductions locales)	Calculs (ex. : primes ventes). Maîtrise : Conformité CNPS.
+HR-004	P1	Bulletins paie/intégration comptable (exports fiscaux)	Bulletins PDF. Maîtrise : Exports OHADA.
+HR-005	P2	[IoT] Pointage biométrique (intégration devices)	Doigt/visage. Maîtrise : Anti-fraude biométrique.
+HR-006	P1	Recrutement/onboarding (portails candidats)	Annonces en ligne. Maîtrise : Workflow onboarding rapide.
+HR-007	P2	[IA] Analytics RH (turnover prediction, skills gap)	Prédit départs. Maîtrise : ML pour gaps compétences.
+HR-008	P2	Conformité locale (CNPS Cameroun, RGPD-like)	Rapports CNPS. Maîtrise : Audits auto-conformes.
+________________________________________
+Module 7 : Canaux de Vente Étendus et Reporting 
+Qu'est-ce que c'est ? Ventes web + analyses puissantes. Maîtrise : E-commerce pour +30 sites, avec IA prédictive augmentant ventes 25%.
+Code	Priorité	Fonctionnalité	Explication Détaillée avec Maîtrise
+WEB-001	P1	Site e-commerce (consultation/commandes, intégration panier existant)	Catalogue interactif. Maîtrise : Sync stocks pour éviter surventes.
+WEB-002	P1	Paiements en ligne (OM/MoMo, sync avec app)	Paiements sécurisés. Maîtrise : API pour confirmations instantanées.
+WEB-003	P2	[IA] Chatbot assistance (recommandations produits)	Chat : "Livre CP1 ?". Maîtrise : NLP pour réponses naturelles.
+RPT-001	P1	Dashboards reporting (Power BI intégré, KPI consolidés)	Graphiques globaux. Maîtrise : Personnalisables pour PDV.
+RPT-002	P1	Rapports ventes personnalisables (filtres, visuals)	Filtres (ex. : échanges mois). Maîtrise : Visuals interactifs.
+RPT-003	P1	Exports fiscaux (formats OHADA/CSV/XML)	Exports prêts. Maîtrise : Conformité 100%.
+WEB-004	P1	Sync intelligent sites web (stocks/commandes/paiements bidirectionnels)	Bi-directionnel. Maîtrise : Webhooks pour zero lag.
+WEB-005	P2	Marketplace multi-fournisseurs	Vendez partenaires. Maîtrise : Commissions auto.
+RPT-004	P2	[IA] Predictive analytics (ventes futures, benchmarks marché)	Prédit "Rentrée +15%". Maîtrise : Benchmarks vs concurrents.
+RPT-005	P2	Mobile dashboards (push alerts)	Alertes téléphone. Maîtrise : Push pour décisions rapides.
+________________________________________
+Fonctionnalités Transversales Non-Fonctionnelles 
+Communes à Tout :
+•	Sécurité : Chiffrement end-to-end (AES), audits logs (tout tracé), whitelisting IPs (accès Cameroun only), détection intrusions IA (alertes 24/7). Maîtrise : Basé NIST, réduction risques 99%.
+•	Robustesse : Offline 48h+ (POS/web partiel), backups auto (quotidiens), redondance (2 data centers). Maîtrise : Uptime 99.99%, gestion conflits sync (algorithmes avancés).
+•	Scalabilité : Horizontale (cloud Azure/on-prem), 1000+ users, auto-scaling (pics rentrée). Maîtrise : Kubernetes-like pour croissance x10.
+•	Maintenabilité : CI/CD (mises à jour sans arrêt), tests 80% coverage, docs auto (Swagger). Maîtrise : Monitoring Grafana pour proactivité.
+•	Efficacité : Temps réponse <2s, UI responsive/multilingue, green IT (optimisation batterie apps). Maîtrise : WCAG pour accessibilité, énergie réduite 30%.
+________________________________________
 

@@ -25,8 +25,11 @@ export class UsersService {
   }
 
   // 👇 NOUS MODIFIONS CETTE MÉTHODE 👇
-  findAll() {
+  findAll(pagination?: { skip?: number; take?: number }) {
+    const { skip = 0, take = 20 } = pagination || {};
     return this.prisma.user.findMany({
+      skip,
+      take,
       // Pour la sécurité, on sélectionne les champs à retourner
       select: {
         id: true,

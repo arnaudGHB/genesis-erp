@@ -20,13 +20,8 @@ export default function LoginPage() {
 
   const onSubmit = async (data: LoginFormData) => {
     try {
-      const response = await api.post('/auth/login', data);
-      const { access_token } = response.data;
-
-      // Stocker le token dans le localStorage
-      localStorage.setItem('access_token', access_token);
-
-      alert('Connexion réussie ! Token stocké.');
+  await api.post('/auth/login', data);
+  // access_token returned in response (handled by main login flow elsewhere)
       // Plus tard, on redirigera vers le dashboard : window.location.href = '/';
     } catch (error) {
       console.error("Erreur de connexion:", error);
