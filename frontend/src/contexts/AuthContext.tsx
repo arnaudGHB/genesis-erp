@@ -71,7 +71,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           api.defaults.headers.common['Authorization'] = `Bearer ${access}`;
           await fetchProfile();
         }
-      } catch (e) {
+      } catch {
         // no valid session
       }
       setIsLoading(false);

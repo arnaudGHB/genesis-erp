@@ -23,7 +23,7 @@ export default function DashboardLayout({
   if (isLoading) {
     return (
       <div className="flex h-screen w-full items-center justify-center">
-        <p>Vérification de l'authentification...</p>
+        <p>Vérification de l’authentification...</p>
       </div>
     );
   }
