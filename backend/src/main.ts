@@ -35,14 +35,30 @@ async function bootstrap() {
     }),
   );
 
-  // CORS origins can be provided via env var CORS_ORIGINS (comma separated). If not provided, default to localhost/dev origins.
+  // CORS origins can be provided via env var CORS_ORIGINS (comma separated).
+  // Automatically include common hosting envs when available (VERCEL_URL, NEXT_PUBLIC_URL)
   const envOrigins = process.env.CORS_ORIGINS;
   const defaultOrigins = [
     'http://localhost:3000',
     'http://localhost:3001',
   ];
 
-  const origins = envOrigins ? envOrigins.split(',').map(s => s.trim()) : defaultOrigins;
+  // Build origin list and include hosting/runtime hints if present
+  const originsFromEnv = envOrigins ? envOrigins.split(',').map(s => s.trim()) : defaultOrigins;
+
+  // If running on Vercel, VERCEL_URL contains the deployment hostname (e.g. my-app.vercel.app)
+  if (process.env.VERCEL_URL) {
+    originsFromEnv.push(`https://${process.env.VERCEL_URL}`);
+  }
+
+  // If front-end publishes its public URL via NEXT_PUBLIC_URL, include it
+  if (process.env.NEXT_PUBLIC_URL) {
+    originsFromEnv.push(process.env.NEXT_PUBLIC_URL);
+  }
+
+  // Deduplicate and trim
+  const origins = Array.from(new Set(originsFromEnv.map(s => s.trim()).filter(Boolean)));
+  logger.log(`CORS whitelist: ${origins.join(', ')}`);
 
   app.enableCors({
     origin: function (origin: string | undefined, callback: (error: Error | null, allow: boolean) => void) {
