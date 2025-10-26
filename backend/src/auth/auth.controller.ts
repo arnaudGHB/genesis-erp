@@ -1,4 +1,4 @@
-import { Body, Controller, Post, HttpCode, HttpStatus, Get, UseGuards, Res, Req, Request, UnauthorizedException } from '@nestjs/common';
+import { Body, Controller, Post, HttpCode, HttpStatus, Get, UseGuards, Res, Req, Request, UnauthorizedException, ForbiddenException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Response, Request as ExpressRequest } from 'express';
 import * as crypto from 'crypto';
@@ -29,14 +29,41 @@ export class AuthController {
     const tokens = await this.authService.signIn(signInDto.email, signInDto.password, meta);
 
     // Set refresh token in a secure HttpOnly cookie
+    // In production, if the frontend is hosted on a different domain (Vercel/Netlify/etc.)
+    // browsers require SameSite='none' and Secure=true to accept cross-site cookies.
+    const cookieSameSite = (process.env.COOKIE_SAMESITE as any) || (process.env.NODE_ENV === 'production' ? 'none' : 'lax');
     res.cookie('refresh_token', tokens.refresh_token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      sameSite: cookieSameSite as any,
       maxAge: Number(process.env.REFRESH_TOKEN_EXPIRES_MS) || 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
     return { access_token: tokens.access_token };
+  }
+
+  @Get('debug')
+  debug(@Req() req: ExpressRequest) {
+    // This debug endpoint is intentionally conservative: disabled in production unless ALLOW_DEBUG=true
+    if (process.env.NODE_ENV === 'production' && process.env.ALLOW_DEBUG !== 'true') {
+      throw new ForbiddenException('Debug endpoint disabled in production');
+    }
+
+    const origin = (req.headers.origin as string) || null;
+    const cookieKeys = req.cookies ? Object.keys(req.cookies) : [];
+
+    return {
+      ok: true,
+      origin,
+      ip: req.ip,
+      userAgent: req.get('user-agent') || null,
+      cookieKeys,
+      hasRefreshCookie: !!(req.cookies as any)?.refresh_token,
+      CORS_ORIGINS_env: process.env.CORS_ORIGINS || null,
+      VERCEL_URL: process.env.VERCEL_URL || null,
+      NEXT_PUBLIC_URL: process.env.NEXT_PUBLIC_URL || null,
+      NOTE: 'This endpoint returns only non-sensitive debug metadata. Do not enable in production unless necessary (set ALLOW_DEBUG=true).',
+    };
   }
 
   @Post('refresh')
@@ -88,11 +115,12 @@ export class AuthController {
       return { newRefreshToken: newToken };
     });
 
-    // Set new refresh token cookie
+    // Set new refresh token cookie (see sameSite handling note above)
+    const cookieSameSite2 = (process.env.COOKIE_SAMESITE as any) || (process.env.NODE_ENV === 'production' ? 'none' : 'lax');
     res.cookie('refresh_token', newRefreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      sameSite: cookieSameSite2 as any,
       maxAge: refreshTtlMs,
     });
 
@@ -108,7 +136,8 @@ export class AuthController {
     const incomingHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
     await this.prisma.refreshToken.updateMany({ where: { tokenHash: incomingHash }, data: { revoked: true } });
     }
-    res.clearCookie('refresh_token');
+  // Clear cookie using same site options if needed
+  res.clearCookie('refresh_token');
     return { ok: true };
   }
 
