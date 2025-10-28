@@ -28,7 +28,9 @@ export default function LoginPage() {
 
   const onSubmit = async (data: LoginFormData) => {
     try {
+      console.log('Attempting login with', { email: data.email });
       const response = await api.post('/auth/login', data);
+      console.log('Login response', response);
       const { access_token } = response.data;
       await login(access_token);
       router.push('/dashboard');

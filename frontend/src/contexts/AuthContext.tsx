@@ -29,19 +29,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [permissions, setPermissions] = useState<Set<string>>(new Set());
-
   const logout = useCallback(() => {
     setToken(null);
     setUser(null);
     setPermissions(new Set());
     // backend will clear refresh cookie on logout endpoint
-    delete api.defaults.headers.common['Authorization'];
+    delete (api.defaults.headers.common as any)['Authorization'];
     window.location.href = '/login';
   }, []);
 
-  const fetchProfile = useCallback(async () => {
+  // Optionally pass an access token to avoid relying on async default header setup
+  const fetchProfile = useCallback(async (overrideToken?: string) => {
     try {
-      const response = await api.get('/auth/profile');
+      const bearer = overrideToken ?? token ?? undefined;
+      const response = await api.get('/auth/profile', bearer ? { headers: { Authorization: `Bearer ${bearer}` } } : undefined);
       setUser(response.data);
       const userPermissions = new Set<string>();
       response.data.roles.forEach((role: Role) => {
@@ -51,12 +52,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
       setPermissions(userPermissions);
     } catch (error) {
-      console.error("Failed to fetch profile:", error);
-      // Ne déconnecter que si on a déjà un token (token expiré/invalide)
-      // Pas pendant la première connexion
-      if (token) {
+      // Déconnecter uniquement sur 401/403 (auth invalide). Autres erreurs: ne pas boucler.
+      const status = (error as any)?.response?.status;
+      if (status === 401 || status === 403) {
         logout();
+        return;
       }
+      console.warn('fetchProfile failed (non-auth):', error);
     }
   }, [token, logout]);
 
@@ -67,9 +69,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const res = await api.post('/auth/refresh');
         const access = res.data?.access_token;
         if (access) {
+          // Set token in state and ensure the axios Authorization header is set synchronously
+          // before attempting to fetch the profile to avoid a race condition.
           setToken(access);
-          api.defaults.headers.common['Authorization'] = `Bearer ${access}`;
-          await fetchProfile();
+          (api.defaults.headers as any).common = (api.defaults.headers as any).common || {};
+          (api.defaults.headers as any).common['Authorization'] = `Bearer ${access}`;
+          await fetchProfile(access);
         }
       } catch {
         // no valid session
@@ -82,20 +87,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     if (token) {
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      (api.defaults.headers.common as any)['Authorization'] = `Bearer ${token}`;
+    } else {
+      delete (api.defaults.headers.common as any)['Authorization'];
     }
   }, [token]);
 
   const login = async (newToken: string) => {
     setToken(newToken);
-    api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
-    await fetchProfile(); // Récupérer le profil juste après la connexion
+    (api.defaults.headers.common as any)['Authorization'] = `Bearer ${newToken}`;
+    await fetchProfile(newToken); // Récupérer le profil juste après la connexion
   };
 
   const hasPermission = (permission: string) => {
     return permissions.has(permission);
   };
-
   return (
     <AuthContext.Provider value={{ token, user, login, logout, isLoading, hasPermission }}>
       {children}

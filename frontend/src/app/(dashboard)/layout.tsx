@@ -12,12 +12,13 @@ export default function DashboardLayout({
 }) {
   const { token, isLoading, logout, user, hasPermission } = useAuth();
   const router = useRouter();
+  const softAuth = process.env.NEXT_PUBLIC_SOFT_AUTH === 'true';
 
   useEffect(() => {
-    if (!isLoading && !token) {
+    if (!isLoading && !token && !softAuth) {
       router.replace("/login"); // Utiliser replace pour ne pas polluer l'historique
     }
-  }, [isLoading, token, router]);
+  }, [isLoading, token, softAuth, router]);
 
   // Affichage pendant que le contexte vérifie l'authentification
   if (isLoading) {
@@ -30,7 +31,7 @@ export default function DashboardLayout({
 
   // Si le chargement est fini et qu'il n'y a toujours pas de token, on n'affiche rien
   // car la redirection est en cours.
-  if (!token) {
+  if (!token && !softAuth) {
     return null;
   }
 
