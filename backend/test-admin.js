@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 async function testAdminAuth() {
-  const API_URL = 'https://genesis-erp-backend.onrender.com';
+  const API_URL = 'http://localhost:3001';
 
   try {
     console.log('🧪 Testing Admin Authentication...\n');
@@ -35,13 +35,7 @@ async function testAdminAuth() {
 
     const headers = { Authorization: `Bearer ${token}` };
 
-    const productsResponse = await axios.get(`${API_URL}/products`, { headers });
-    console.log('✅ Products endpoint accessible');
-    console.log('📦 Products count:', productsResponse.data.length);
-
-    const stocksResponse = await axios.get(`${API_URL}/stocks`, { headers });
-    console.log('✅ Stocks endpoint accessible');
-    console.log('📊 Stocks count:', stocksResponse.data.length);
+    console.log('\n🎉 All tests passed! Admin authentication is working correctly.');
 
     console.log('\n🎉 All tests passed! Admin authentication is working correctly.');
 

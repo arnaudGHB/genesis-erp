@@ -1,9 +1,10 @@
 import { Controller, Get, Post, Body, Param, UseGuards } from '@nestjs/common';
 import { StocksService } from './stocks.service';
-import { AuthGuard } from '@nestjs/passport';
+import { FlexibleAuthGuard } from '../auth/flexible-auth.guard';
+import { RolesGuard } from '../auth/roles.guard';
 import { AdjustStockDto } from './dto/adjust-stock.dto';
 
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(FlexibleAuthGuard, RolesGuard)
 @Controller('stocks')
 export class StocksController {
   constructor(private readonly stocksService: StocksService) {}

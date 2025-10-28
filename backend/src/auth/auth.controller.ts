@@ -4,7 +4,7 @@ import { Response, Request as ExpressRequest } from 'express';
 import * as crypto from 'crypto';
 import { AuthService } from './auth.service';
 import { SignInDto } from './dto/sign-in.dto';
-import { AuthGuard } from '@nestjs/passport';
+import { FlexibleAuthGuard } from './flexible-auth.guard';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Controller('auth')
@@ -26,20 +26,24 @@ export class AuthController {
       ip: (req.ip as string) || (req.headers['x-forwarded-for'] as string | undefined),
       userAgent: req.get('user-agent') || (req.headers['user-agent'] as string | undefined),
     };
-    const tokens = await this.authService.signIn(signInDto.email, signInDto.password, meta);
+
+    const result = await this.authService.signIn(signInDto.email, signInDto.password, meta);
 
     // Set refresh token in a secure HttpOnly cookie
     // In production, if the frontend is hosted on a different domain (Vercel/Netlify/etc.)
     // browsers require SameSite='none' and Secure=true to accept cross-site cookies.
     const cookieSameSite = (process.env.COOKIE_SAMESITE as any) || (process.env.NODE_ENV === 'production' ? 'none' : 'lax');
-    res.cookie('refresh_token', tokens.refresh_token, {
+    res.cookie('refresh_token', result.refresh_token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: cookieSameSite as any,
       maxAge: Number(process.env.REFRESH_TOKEN_EXPIRES_MS) || 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
-    return { access_token: tokens.access_token };
+    return {
+      access_token: result.access_token,
+      user: result.user
+    };
   }
 
   @Get('debug')
@@ -68,80 +72,103 @@ export class AuthController {
 
   @Post('refresh')
   async refresh(@Req() req: ExpressRequest, @Res({ passthrough: true }) res: Response) {
+    // En mode DEV, simplifier le refresh pour éviter les blocages
+    if (process.env.DEV_MODE === 'true') {
+      const accessToken = await this.jwtService.signAsync(
+        { sub: 'dev-user', email: 'dev@example.com' },
+        { expiresIn: '1h' } as any,
+      );
+      return { access_token: accessToken };
+    }
+
     const refreshToken = (req.cookies as any)?.refresh_token;
     if (!refreshToken) {
-      throw new UnauthorizedException('No refresh token');
+      throw new UnauthorizedException('No refresh token provided');
     }
-    // Verify token and rotate it atomically in the DB (create new refresh token + revoke old)
+
+    // Vérifier le refresh token JWT
     let payload: any;
     try {
-      payload = await this.jwtService.verifyAsync(refreshToken, { ignoreExpiration: false });
-    } catch (e) {
-      throw new UnauthorizedException('Invalid refresh token');
+      payload = await this.jwtService.verifyAsync(refreshToken, {
+        ignoreExpiration: false
+      });
+    } catch (error) {
+      throw new UnauthorizedException('Invalid or expired refresh token');
     }
 
-    const now = new Date();
-    const refreshTtlMs = Number(process.env.REFRESH_TOKEN_EXPIRES_MS) || 7 * 24 * 60 * 60 * 1000;
-  const jwtRefreshExpiresIn = process.env.JWT_REFRESH_EXPIRES_IN || '7d';
+    // Valider le refresh token en base de données
+    const isValid = await this.authService.validateRefreshToken(refreshToken, payload.sub);
+    if (!isValid) {
+      throw new UnauthorizedException('Refresh token has been revoked');
+    }
 
-    // Use a transaction to atomically revoke the old token and create a new one
-    const { newRefreshToken } = await this.prisma.$transaction(async (tx) => {
-      // Lookup by tokenHash (we store hashes, not the raw token)
-    const incomingHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
-    const record = await tx.refreshToken.findUnique({ where: { tokenHash: incomingHash } });
-      if (!record || record.revoked || record.expiresAt < now) {
-        throw new UnauthorizedException('Refresh token revoked or expired');
-      }
+    // Générer un nouveau access token
+    const accessToken = await this.jwtService.signAsync(
+      { sub: payload.sub, email: payload.email },
+      { expiresIn: process.env.JWT_EXPIRES_IN || '15m' } as any,
+    );
 
-      // Revoke old token
-    await tx.refreshToken.updateMany({ where: { tokenHash: incomingHash }, data: { revoked: true } });
+    // Générer un nouveau refresh token (rotation)
+    const newRefreshToken = await this.jwtService.signAsync(
+      { sub: payload.sub, email: payload.email },
+      { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d' } as any,
+    );
 
-      // Issue a new refresh token
-  const newToken = await this.jwtService.signAsync({ sub: payload.sub, email: payload.email }, { expiresIn: jwtRefreshExpiresIn } as any);
-      const expiresAt = new Date(Date.now() + refreshTtlMs);
+    // Révoquer l'ancien token et créer le nouveau
+    await this.authService.revokeRefreshToken(refreshToken);
 
-      const newHash = crypto.createHash('sha256').update(newToken).digest('hex');
+    const expiresAt = new Date(
+      Date.now() + (Number(process.env.REFRESH_TOKEN_EXPIRES_MS) || 7 * 24 * 60 * 60 * 1000),
+    );
+    const tokenHash = crypto.createHash('sha256').update(newRefreshToken).digest('hex');
 
-      await tx.refreshToken.create({
-        data: {
-          tokenHash: newHash,
-          userId: record.userId,
-          expiresAt,
-          ip: (req.ip as string) || (req.headers['x-forwarded-for'] as string | undefined),
-          userAgent: req.get('user-agent') || (req.headers['user-agent'] as string | undefined),
-        },
-      });
-
-      return { newRefreshToken: newToken };
+    await this.prisma.refreshToken.create({
+      data: {
+        tokenHash,
+        userId: payload.sub,
+        expiresAt,
+        ip: req.ip,
+        userAgent: req.get('user-agent'),
+      },
     });
 
-    // Set new refresh token cookie (see sameSite handling note above)
-    const cookieSameSite2 = (process.env.COOKIE_SAMESITE as any) || (process.env.NODE_ENV === 'production' ? 'none' : 'lax');
+    // Définir le nouveau cookie refresh
+    const cookieSameSite = (process.env.COOKIE_SAMESITE as any) ||
+      (process.env.NODE_ENV === 'production' ? 'none' : 'lax');
     res.cookie('refresh_token', newRefreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: cookieSameSite2 as any,
-      maxAge: refreshTtlMs,
+      sameSite: cookieSameSite as any,
+      maxAge: Number(process.env.REFRESH_TOKEN_EXPIRES_MS) || 7 * 24 * 60 * 60 * 1000,
     });
 
-    // Issue new access token
-  const accessToken = await this.jwtService.signAsync({ sub: payload.sub, email: payload.email }, { expiresIn: process.env.JWT_EXPIRES_IN || '60m' } as any);
     return { access_token: accessToken };
   }
 
   @Post('logout')
   async logout(@Req() req: any, @Res({ passthrough: true }) res: Response) {
+    // En mode DEV, juste supprimer le cookie
+    if (process.env.DEV_MODE === 'true') {
+      res.clearCookie('refresh_token');
+      return { success: true, message: 'Logged out successfully' };
+    }
+
     const refreshToken = req.cookies?.refresh_token;
     if (refreshToken) {
-    const incomingHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
-    await this.prisma.refreshToken.updateMany({ where: { tokenHash: incomingHash }, data: { revoked: true } });
+      try {
+        await this.authService.revokeRefreshToken(refreshToken);
+      } catch (error) {
+        // Log l'erreur mais ne pas bloquer le logout
+        console.warn('Failed to revoke token on logout:', error);
+      }
     }
-  // Clear cookie using same site options if needed
-  res.clearCookie('refresh_token');
-    return { ok: true };
+
+    res.clearCookie('refresh_token');
+    return { success: true, message: 'Logged out successfully' };
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  // Profile avec FlexibleAuthGuard
+  @UseGuards(FlexibleAuthGuard)
   @Get('profile')
   getProfile(@Request() req: any) {
     return req.user;

@@ -10,7 +10,7 @@ async function main() {
   const permissionsToCreate = [
     'user:create', 'user:read', 'user:update', 'user:delete',
     'product:create', 'product:read', 'product:update', 'product:delete',
-    'stock:read', 'stock:adjust',
+    'stock:create', 'stock:read', 'stock:update', 'stock:delete', 'stock:adjust',
     'role:read', 'role:assign'
   ];
 
@@ -25,15 +25,15 @@ async function main() {
 
   // 2. Créer les rôles de base
   const adminRole = await prisma.role.upsert({
-    where: { name: 'ADMIN' },
+    where: { name: 'Administrateur' },
     update: {},
-    create: { name: 'ADMIN', description: 'Administrator with all permissions' },
+    create: { name: 'Administrateur', description: 'Administrateur avec tous les droits' },
   });
 
   await prisma.role.upsert({
-    where: { name: 'CASHIER' },
+    where: { name: 'Caissier' },
     update: {},
-    create: { name: 'CASHIER', description: 'Cashier with POS access' },
+    create: { name: 'Caissier', description: 'Caissier avec accès POS' },
   });
   console.log('Roles created/verified.');
 

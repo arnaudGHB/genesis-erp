@@ -11,19 +11,45 @@ export class RolesGuard implements CanActivate {
       context.getHandler(),
       context.getClass(),
     ]);
+
+    // Si aucun rôle requis, autoriser l'accès
     if (!requiredRoles || requiredRoles.length === 0) {
       return true;
     }
 
-    const req = context.switchToHttp().getRequest();
-    const user = req.user;
-    if (!user) return false;
+    const request = context.switchToHttp().getRequest();
+    const user = request.user;
 
-    const userRoles: string[] = (user.roles || []).map((r: any) => r.name);
-    const has = requiredRoles.some((role) => userRoles.includes(role));
-    if (!has) {
-      throw new ForbiddenException('Insufficient role');
+    // Vérifier que l'utilisateur existe
+    if (!user) {
+      throw new ForbiddenException('Authentication required');
     }
+
+    // Vérifier que l'utilisateur a des rôles
+    if (!user.roles || !Array.isArray(user.roles)) {
+      throw new ForbiddenException('User has no roles assigned');
+    }
+
+    // Extraire les noms des rôles de l'utilisateur
+    const userRoles: string[] = user.roles.map((role: any) => {
+      // Gérer différents formats de rôles
+      if (typeof role === 'string') {
+        return role;
+      }
+      return role.name || role;
+    }).filter(Boolean);
+
+    // Vérifier si l'utilisateur a au moins un des rôles requis
+    const hasRequiredRole = requiredRoles.some((requiredRole) =>
+      userRoles.includes(requiredRole)
+    );
+
+    if (!hasRequiredRole) {
+      throw new ForbiddenException(
+        `Access denied. Required roles: ${requiredRoles.join(', ')}. User roles: ${userRoles.join(', ')}`
+      );
+    }
+
     return true;
   }
 }

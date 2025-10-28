@@ -12,8 +12,13 @@ async function bootstrap() {
 
   const logger = new Logger('bootstrap');
 
-  // Helmet to set secure HTTP headers
-  app.use(helmet());
+  // Helmet to set secure HTTP headers (configured for web apps with APIs)
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+      contentSecurityPolicy: false, // Disable CSP for API-only backend
+    }),
+  );
 
   // Init Sentry (optional) if SENTRY_DSN provided
   if (process.env.SENTRY_DSN) {
@@ -35,47 +40,108 @@ async function bootstrap() {
     }),
   );
 
-  // CORS origins can be provided via env var CORS_ORIGINS (comma separated).
-  // Automatically include common hosting envs when available (VERCEL_URL, NEXT_PUBLIC_URL)
-  const envOrigins = process.env.CORS_ORIGINS;
-  const defaultOrigins = [
-    'http://localhost:3000',
-    'http://localhost:3001',
-  ];
+  // =========================================================================
+  // CORS Configuration - Best practice: strict in PROD, permissive in DEV
+  // =========================================================================
+  const isDev = process.env.NODE_ENV !== 'production';
+  const devMode = process.env.DEV_MODE === 'true';
+  
+  // En mode DEV ou DEV_MODE, autoriser toutes les origines localhost/127.0.0.1
+  if (isDev || devMode) {
+    logger.log('🔓 CORS: Mode développement - origines localhost autorisées');
+    app.enableCors({
+      origin: (origin: string | undefined, callback: (error: Error | null, allow: boolean) => void) => {
+        // Autoriser requêtes sans origin (curl, Postman, server-to-server)
+        if (!origin) return callback(null, true);
+        
+        // Autoriser localhost et 127.0.0.1 sur tous les ports
+        if (origin.startsWith('http://localhost:') || 
+            origin.startsWith('http://127.0.0.1:') ||
+            origin.startsWith('http://192.168.')) {
+          return callback(null, true);
+        }
+        
+        // Bloquer autres origines même en DEV pour la sécurité
+        logger.warn(`⚠️  CORS bloqué: ${origin}`);
+        callback(null, false);
+      },
+      methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+      credentials: true,
+      allowedHeaders: ['Authorization', 'Content-Type', 'Accept', 'X-Requested-With'],
+      exposedHeaders: ['WWW-Authenticate'],
+      optionsSuccessStatus: 204,
+      maxAge: 86400, // 24h cache pour preflight
+    });
+  } else {
+    // Mode PRODUCTION: whitelist stricte depuis CORS_ORIGINS
+    const envOrigins = process.env.CORS_ORIGINS;
+    
+    // En mode strict sans DEV_MODE, exiger CORS_ORIGINS
+    const originsFromEnv = envOrigins ? envOrigins.split(',').map(s => s.trim()).filter(Boolean) : [];
+    
+    // Ajouter VERCEL_URL si disponible
+    if (process.env.VERCEL_URL) {
+      originsFromEnv.push(`https://${process.env.VERCEL_URL}`);
+    }
+    
+    // Ajouter NEXT_PUBLIC_URL si disponible
+    if (process.env.NEXT_PUBLIC_URL) {
+      originsFromEnv.push(process.env.NEXT_PUBLIC_URL);
+    }
 
-  // Build origin list and include hosting/runtime hints if present
-  const originsFromEnv = envOrigins ? envOrigins.split(',').map(s => s.trim()) : defaultOrigins;
-
-  // If running on Vercel, VERCEL_URL contains the deployment hostname (e.g. my-app.vercel.app)
-  if (process.env.VERCEL_URL) {
-    originsFromEnv.push(`https://${process.env.VERCEL_URL}`);
+    const origins = Array.from(new Set(originsFromEnv));
+    
+    if (origins.length === 0) {
+      logger.warn('⚠️  CORS_ORIGINS vide - autoriser toutes origines en développement');
+      // Fallback: autoriser toutes origines si aucune n'est configurée (dev uniquement)
+      app.enableCors({
+        origin: true,
+        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+        credentials: true,
+        allowedHeaders: ['Authorization', 'Content-Type', 'Accept', 'X-Requested-With'],
+        exposedHeaders: ['WWW-Authenticate'],
+        optionsSuccessStatus: 204,
+        maxAge: 86400,
+      });
+    } else {
+      logger.log(`🔒 CORS: Mode production - whitelist: ${origins.join(', ')}`);
+      app.enableCors({
+        origin: (origin: string | undefined, callback: (error: Error | null, allow: boolean) => void) => {
+          if (!origin) return callback(null, true);
+          
+          if (origins.includes(origin)) {
+            callback(null, true);
+          } else {
+            logger.warn(`❌ CORS bloqué en production: ${origin}`);
+            callback(null, false);
+          }
+        },
+        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+        credentials: true,
+        allowedHeaders: ['Authorization', 'Content-Type', 'Accept', 'X-Requested-With'],
+        exposedHeaders: ['WWW-Authenticate'],
+        optionsSuccessStatus: 204,
+        maxAge: 86400,
+      });
+    }
   }
 
-  // If front-end publishes its public URL via NEXT_PUBLIC_URL, include it
-  if (process.env.NEXT_PUBLIC_URL) {
-    originsFromEnv.push(process.env.NEXT_PUBLIC_URL);
-  }
+  app.useGlobalPipes(new ValidationPipe({
+    whitelist: true, // Supprime les propriétés non décorées
+    forbidNonWhitelisted: true, // Lance une erreur si des propriétés non décorées sont présentes
+    transform: true, // Transforme automatiquement les payloads
+    disableErrorMessages: process.env.NODE_ENV === 'production', // Cache les détails d'erreur en prod
+  }));
 
-  // Deduplicate and trim
-  const origins = Array.from(new Set(originsFromEnv.map(s => s.trim()).filter(Boolean)));
-  logger.log(`CORS whitelist: ${origins.join(', ')}`);
-
-  app.enableCors({
-    origin: function (origin: string | undefined, callback: (error: Error | null, allow: boolean) => void) {
-      // Allow non-browser requests (e.g., curl, server-to-server) where origin is undefined
-      if (!origin) return callback(null, true);
-      if (origins.indexOf(origin) !== -1) {
-        callback(null, true);
-      } else {
-        logger.warn(`Blocked CORS origin: ${origin}`);
-        callback(new Error('Not allowed by CORS'), false);
-      }
-    },
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true,
+  // Gestion globale des erreurs non capturées
+  process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
   });
 
-  app.useGlobalPipes(new ValidationPipe());
+  process.on('uncaughtException', (error) => {
+    console.error('Uncaught Exception:', error);
+    process.exit(1);
+  });
 
   await app.listen(process.env.PORT || 3001); // Port 3001 pour correspondre au proxy frontend
 }

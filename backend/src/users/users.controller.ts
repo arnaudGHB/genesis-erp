@@ -4,9 +4,9 @@ import { RolesGuard } from '../auth/roles.guard';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { AuthGuard } from '@nestjs/passport'; // <-- 1. IMPORTER
+import { FlexibleAuthGuard } from '../auth/flexible-auth.guard';
 
-@UseGuards(AuthGuard('jwt')) // <-- 2. PROTÉGER TOUTES LES ROUTES DE CE CONTRÔLEUR
+@UseGuards(FlexibleAuthGuard)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}

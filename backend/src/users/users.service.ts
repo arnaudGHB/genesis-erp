@@ -103,10 +103,7 @@ export class UsersService {
         },
       },
     });
-
-    if (!user) {
-      throw new NotFoundException(`User with ID "${id}" not found`);
-    }
+    // Ne pas lancer NotFound ici: laisser JwtStrategy décider (401 Unauthorized)
     return user;
   }
 }
