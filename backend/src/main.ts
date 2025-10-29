@@ -41,90 +41,64 @@ async function bootstrap() {
   );
 
   // =========================================================================
-  // CORS Configuration - Best practice: strict in PROD, permissive in DEV
+  // CORS Configuration - Fixed for production deployment
   // =========================================================================
   const isDev = process.env.NODE_ENV !== 'production';
   const devMode = process.env.DEV_MODE === 'true';
-  
-  // En mode DEV ou DEV_MODE, autoriser toutes les origines localhost/127.0.0.1
+
+  // Build allowed origins list
+  const allowedOrigins: string[] = [];
+
+  // Always allow server-to-server requests (no origin)
+  // In development, allow localhost
   if (isDev || devMode) {
     logger.log('🔓 CORS: Mode développement - origines localhost autorisées');
-    app.enableCors({
-      origin: (origin: string | undefined, callback: (error: Error | null, allow: boolean) => void) => {
-        // Autoriser requêtes sans origin (curl, Postman, server-to-server)
-        if (!origin) return callback(null, true);
-        
-        // Autoriser localhost et 127.0.0.1 sur tous les ports
-        if (origin.startsWith('http://localhost:') || 
-            origin.startsWith('http://127.0.0.1:') ||
-            origin.startsWith('http://192.168.')) {
-          return callback(null, true);
-        }
-        
-        // Bloquer autres origines même en DEV pour la sécurité
-        logger.warn(`⚠️  CORS bloqué: ${origin}`);
-        callback(null, false);
-      },
-      methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-      credentials: true,
-      allowedHeaders: ['Authorization', 'Content-Type', 'Accept', 'X-Requested-With'],
-      exposedHeaders: ['WWW-Authenticate'],
-      optionsSuccessStatus: 204,
-      maxAge: 86400, // 24h cache pour preflight
-    });
-  } else {
-    // Mode PRODUCTION: whitelist stricte depuis CORS_ORIGINS
-    const envOrigins = process.env.CORS_ORIGINS;
-    
-    // En mode strict sans DEV_MODE, exiger CORS_ORIGINS
-    const originsFromEnv = envOrigins ? envOrigins.split(',').map(s => s.trim()).filter(Boolean) : [];
-    
-    // Ajouter VERCEL_URL si disponible
-    if (process.env.VERCEL_URL) {
-      originsFromEnv.push(`https://${process.env.VERCEL_URL}`);
-    }
-    
-    // Ajouter NEXT_PUBLIC_URL si disponible
-    if (process.env.NEXT_PUBLIC_URL) {
-      originsFromEnv.push(process.env.NEXT_PUBLIC_URL);
-    }
-
-    const origins = Array.from(new Set(originsFromEnv));
-    
-    if (origins.length === 0) {
-      logger.warn('⚠️  CORS_ORIGINS vide - autoriser toutes origines en développement');
-      // Fallback: autoriser toutes origines si aucune n'est configurée (dev uniquement)
-      app.enableCors({
-        origin: true,
-        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-        credentials: true,
-        allowedHeaders: ['Authorization', 'Content-Type', 'Accept', 'X-Requested-With'],
-        exposedHeaders: ['WWW-Authenticate'],
-        optionsSuccessStatus: 204,
-        maxAge: 86400,
-      });
-    } else {
-      logger.log(`🔒 CORS: Mode production - whitelist: ${origins.join(', ')}`);
-      app.enableCors({
-        origin: (origin: string | undefined, callback: (error: Error | null, allow: boolean) => void) => {
-          if (!origin) return callback(null, true);
-          
-          if (origins.includes(origin)) {
-            callback(null, true);
-          } else {
-            logger.warn(`❌ CORS bloqué en production: ${origin}`);
-            callback(null, false);
-          }
-        },
-        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-        credentials: true,
-        allowedHeaders: ['Authorization', 'Content-Type', 'Accept', 'X-Requested-With'],
-        exposedHeaders: ['WWW-Authenticate'],
-        optionsSuccessStatus: 204,
-        maxAge: 86400,
-      });
-    }
+    allowedOrigins.push('http://localhost:3000', 'http://localhost:3001', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001');
   }
+
+  // In production, use CORS_ORIGINS environment variable
+  const envOrigins = process.env.CORS_ORIGINS;
+  if (envOrigins) {
+    const originsFromEnv = envOrigins.split(',').map(s => s.trim()).filter(Boolean);
+    allowedOrigins.push(...originsFromEnv);
+  }
+
+  // Add Vercel deployment URLs if available
+  if (process.env.VERCEL_URL) {
+    allowedOrigins.push(`https://${process.env.VERCEL_URL}`);
+  }
+
+  if (process.env.NEXT_PUBLIC_URL) {
+    allowedOrigins.push(process.env.NEXT_PUBLIC_URL);
+  }
+
+  // Remove duplicates
+  const uniqueOrigins = Array.from(new Set(allowedOrigins));
+
+  logger.log(`🔒 CORS: Origines autorisées: ${uniqueOrigins.join(', ') || 'aucune'}`);
+
+  // Configure CORS with proper preflight handling
+  app.enableCors({
+    origin: (origin: string | undefined, callback: (error: Error | null, allow: boolean) => void) => {
+      // Allow requests without origin (server-to-server, curl, Postman)
+      if (!origin) return callback(null, true);
+
+      // Check if origin is in allowed list
+      if (uniqueOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        logger.warn(`❌ CORS bloqué: ${origin} (origines autorisées: ${uniqueOrigins.join(', ')})`);
+        callback(new Error('Not allowed by CORS'), false);
+      }
+    },
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+    credentials: true,
+    allowedHeaders: ['Authorization', 'Content-Type', 'Accept', 'X-Requested-With'],
+    exposedHeaders: ['WWW-Authenticate'],
+    optionsSuccessStatus: 204,
+    maxAge: 86400, // 24h cache for preflight
+    preflightContinue: false,
+  });
 
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true, // Supprime les propriétés non décorées
