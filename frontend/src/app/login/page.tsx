@@ -51,16 +51,31 @@ export default function LoginPage() {
     } catch (error: unknown) {
       console.error("Erreur de connexion:", error);
 
-      // Handle different error types
-      const axiosError = error as { code?: string; message?: string; response?: { status?: number } };
-      if (axiosError.code === 'NETWORK_ERROR' || axiosError.message === 'Network Error') {
-        alert('Erreur de connexion réseau. Vérifiez votre connexion internet.');
+      // Handle different error types with better detection
+      const axiosError = error as {
+        code?: string;
+        message?: string;
+        response?: { status?: number; data?: { message?: string } };
+        isAxiosError?: boolean;
+      };
+
+      // Check for network errors
+      if (axiosError.code === 'NETWORK_ERROR' ||
+          axiosError.message?.includes('Network Error') ||
+          axiosError.message?.includes('ERR_NETWORK') ||
+          !axiosError.response) {
+        alert('Erreur de connexion réseau. Vérifiez votre connexion internet ou l\'URL du serveur.');
       } else if (axiosError.response?.status === 401) {
         alert('Email ou mot de passe incorrect.');
       } else if (axiosError.response?.status === 429) {
         alert('Trop de tentatives. Veuillez réessayer dans quelques minutes.');
+      } else if (axiosError.response?.status === 500) {
+        alert('Erreur serveur. Veuillez réessayer plus tard.');
+      } else if (axiosError.response?.status === 404) {
+        alert('Service non trouvé. Vérifiez la configuration.');
       } else {
-        alert('Erreur de connexion. Veuillez réessayer.');
+        const errorMessage = axiosError.response?.data?.message || 'Erreur de connexion inconnue.';
+        alert(`Erreur: ${errorMessage}`);
       }
     }
   };
