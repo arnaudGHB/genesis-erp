@@ -23,7 +23,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 export default function LoginPage() {
   const { login } = useAuth();
   const router = useRouter();
-  const { register, handleSubmit, formState: { errors, isSubmitting }, setValue } = useForm<LoginFormData>({
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
 
@@ -48,15 +48,16 @@ export default function LoginPage() {
       const { access_token } = response.data;
       await login(access_token);
       router.push('/dashboard');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Erreur de connexion:", error);
 
       // Handle different error types
-      if (error.code === 'NETWORK_ERROR' || error.message === 'Network Error') {
+      const axiosError = error as { code?: string; message?: string; response?: { status?: number } };
+      if (axiosError.code === 'NETWORK_ERROR' || axiosError.message === 'Network Error') {
         alert('Erreur de connexion réseau. Vérifiez votre connexion internet.');
-      } else if (error.response?.status === 401) {
+      } else if (axiosError.response?.status === 401) {
         alert('Email ou mot de passe incorrect.');
-      } else if (error.response?.status === 429) {
+      } else if (axiosError.response?.status === 429) {
         alert('Trop de tentatives. Veuillez réessayer dans quelques minutes.');
       } else {
         alert('Erreur de connexion. Veuillez réessayer.');

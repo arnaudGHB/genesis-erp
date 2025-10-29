@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
     setPermissions(new Set());
     // backend will clear refresh cookie on logout endpoint
-    delete (api.defaults.headers.common as any)['Authorization'];
+    delete (api.defaults.headers.common as Record<string, string>)['Authorization'];
     window.location.href = '/login';
   }, []);
 
@@ -51,9 +51,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         });
       });
       setPermissions(userPermissions);
-    } catch (error) {
+    } catch (error: unknown) {
       // Déconnecter uniquement sur 401/403 (auth invalide). Autres erreurs: ne pas boucler.
-      const status = (error as any)?.response?.status;
+      const axiosError = error as { response?: { status?: number } };
+      const status = axiosError?.response?.status;
       if (status === 401 || status === 403) {
         logout();
         return;
@@ -72,13 +73,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           // Set token in state and ensure the axios Authorization header is set synchronously
           // before attempting to fetch the profile to avoid a race condition.
           setToken(access);
-          (api.defaults.headers as any).common = (api.defaults.headers as any).common || {};
-          (api.defaults.headers as any).common['Authorization'] = `Bearer ${access}`;
+          (api.defaults.headers as Record<string, Record<string, string>>).common = (api.defaults.headers as Record<string, Record<string, string>>).common || {};
+          (api.defaults.headers as Record<string, Record<string, string>>).common['Authorization'] = `Bearer ${access}`;
           await fetchProfile(access);
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         // Handle network errors gracefully
-        if (error.code === 'NETWORK_ERROR' || error.message === 'Network Error') {
+        const axiosError = error as { code?: string; message?: string };
+        if (axiosError.code === 'NETWORK_ERROR' || axiosError.message === 'Network Error') {
           console.warn('Network error during auth refresh, user will need to login manually');
         } else {
           console.warn('Auth refresh failed:', error);
@@ -87,7 +89,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setToken(null);
         setUser(null);
         setPermissions(new Set());
-        delete (api.defaults.headers.common as any)['Authorization'];
+        delete (api.defaults.headers.common as Record<string, string>)['Authorization'];
       }
       setIsLoading(false);
     };
@@ -97,15 +99,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     if (token) {
-      (api.defaults.headers.common as any)['Authorization'] = `Bearer ${token}`;
+      (api.defaults.headers.common as Record<string, string>)['Authorization'] = `Bearer ${token}`;
     } else {
-      delete (api.defaults.headers.common as any)['Authorization'];
+      delete (api.defaults.headers.common as Record<string, string>)['Authorization'];
     }
   }, [token]);
 
   const login = async (newToken: string) => {
     setToken(newToken);
-    (api.defaults.headers.common as any)['Authorization'] = `Bearer ${newToken}`;
+    (api.defaults.headers.common as Record<string, string>)['Authorization'] = `Bearer ${newToken}`;
     await fetchProfile(newToken); // Récupérer le profil juste après la connexion
   };
 
