@@ -28,7 +28,7 @@ export default function UsersPage() {
       setLoading(true);
       const response = await api.get('/users');
       setUsers(response.data.data || response.data); // Gère la pagination future
-    } catch (err) {
+    } catch (_err) {
       toast.error("Erreur lors du chargement des utilisateurs.");
     } finally {
       setLoading(false);
@@ -52,9 +52,15 @@ export default function UsersPage() {
       setCreateModalOpen(false);
       setEditingUser(null);
       await fetchUsers();
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.message || `Erreur lors de la ${action.toLowerCase()} de l'utilisateur.`;
-      toast.error(errorMessage, { description: error.response?.data?.error || '' });
+    } catch (error: unknown) {
+      let errorMessage = `Erreur lors de la ${action.toLowerCase()} de l'utilisateur.`;
+      let errorDescription = '';
+      if (typeof error === 'object' && error !== null && 'response' in error) {
+        const response = (error as any).response;
+        errorMessage = response?.data?.message || errorMessage;
+        errorDescription = response?.data?.error || '';
+      }
+      toast.error(errorMessage, { description: errorDescription });
     } finally {
       setIsSubmitting(false);
     }
@@ -66,13 +72,13 @@ export default function UsersPage() {
             await api.delete(`/users/${userId}`);
             toast.success("Utilisateur supprimé avec succès !");
             await fetchUsers();
-        } catch (error) {
+        } catch (_error) {
             toast.error("Erreur lors de la suppression de l'utilisateur.");
         }
     }
   };
 
-  if (loading) return <div>Chargement des données...</div>;
+  if (loading) return <div className="flex items-center justify-center h-64"><p>Chargement des données...</p></div>;
 
   return (
     <div className="space-y-6">
