@@ -36,7 +36,12 @@ export class UsersService {
         email: true,
         name: true,
         createdAt: true,
-      }
+        roles: {
+          select: {
+            name: true,
+          },
+        },
+      },
     });
   }
 
