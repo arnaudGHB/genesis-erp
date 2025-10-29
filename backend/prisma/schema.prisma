@@ -21,6 +21,9 @@ model User {
   password  String
   roles     Role[]   @relation("UserRoles")
   refreshTokens RefreshToken[]
+  mfaSecret String?
+  pdvId     String?  // Relation vers PDV pour multi-PDV
+  pdv       PDV?     @relation(fields: [pdvId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -39,6 +42,7 @@ model Role {
   description String?
   users       User[]       @relation("UserRoles")
   permissions Permission[] @relation("RolePermissions")
+  discountCap Decimal?     // Pour remises par rôle
 }
 
 // --- MODÈLES MÉTIER (PRODUITS & STOCKS) ---
@@ -58,6 +62,75 @@ model Product {
   stockLevels StockLevel[]
 }
 
+// --- MODÈLES PDV ET CONFIG ---
+
+model PDV {
+  id        String @id @default(cuid())
+  name      String
+  location  String?
+  timezone  String @default("Africa/Douala")
+  users     User[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Config {
+  id    String @id @default(cuid())
+  key   String @unique
+  value Json
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// --- MODÈLES TIERS ---
+
+model Client {
+  id           String         @id @default(cuid())
+  name         String
+  phone        String         @unique
+  category     ClientCategory
+  discountRate Decimal        @default(0)
+  creditLimit  Decimal?
+
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+}
+
+enum ClientCategory {
+  GROSSISTE
+  REVENDEUR
+  DETAIL
+}
+
+model Supplier {
+  id          String             @id @default(cuid())
+  name        String
+  contact     String?
+  paymentTerms String?
+  invoices    SupplierInvoice[]
+
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+}
+
+model SupplierInvoice {
+  id         String   @id @default(cuid())
+  supplierId String
+  supplier   Supplier @relation(fields: [supplierId], references: [id])
+  invoiceNumber String @unique
+  date       DateTime
+  total      Decimal
+  items      Json     // Array of line items
+  dueDate    DateTime?
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+// --- MODÈLES STOCK ---
+
 model StockLevel {
   id        String @id @default(cuid())
   quantity  Int    @default(0)
@@ -70,6 +143,85 @@ model StockLevel {
   updatedAt DateTime @updatedAt
 
   @@unique([productId, location])
+}
+
+model StockMovement {
+  id        String      @id @default(cuid())
+  productId String
+  type      MovementType
+  quantity  Int
+  reference String?
+  createdBy String
+  createdAt DateTime    @default(now())
+}
+
+enum MovementType {
+  IN
+  OUT
+  ADJUSTMENT
+}
+
+model StockAlert {
+  id        String     @id @default(cuid())
+  productId String
+  level     AlertLevel
+  createdAt DateTime   @default(now())
+  handled   Boolean    @default(false)
+}
+
+enum AlertLevel {
+  THRESHOLD
+  CRITICAL
+}
+
+// --- MODÈLES POS ---
+
+model PosSession {
+  id             String   @id @default(cuid())
+  pdvId          String
+  cashierId      String
+  openedAt       DateTime @default(now())
+  closedAt       DateTime?
+  openingBalance Decimal
+  closingBalance Decimal?
+  status         SessionStatus @default(OPEN)
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+enum SessionStatus {
+  OPEN
+  CLOSED
+}
+
+model Sale {
+  id         String   @id @default(cuid())
+  sessionId  String
+  clientId   String?
+  items      Json     // Array of {productId, qty, price}
+  total      Decimal
+  payments   Payment[]
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Payment {
+  id       String       @id @default(cuid())
+  saleId   String
+  sale     Sale         @relation(fields: [saleId], references: [id])
+  type     PaymentType
+  amount   Decimal
+  reference String?
+
+  createdAt DateTime    @default(now())
+}
+
+enum PaymentType {
+  CASH
+  MOMO
+  CARD
 }
 
 // Refresh tokens for user sessions (allow revocation)
@@ -85,4 +237,14 @@ model RefreshToken {
   userAgent String?  // optional: user agent for auditing
   createdAt DateTime @default(now())
   expiresAt DateTime
+}
+
+// Audit logs for admin actions
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String
+  action    String
+  target    String?
+  payload   Json?
+  createdAt DateTime @default(now())
 }
