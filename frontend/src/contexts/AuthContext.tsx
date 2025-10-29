@@ -76,8 +76,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           (api.defaults.headers as any).common['Authorization'] = `Bearer ${access}`;
           await fetchProfile(access);
         }
-      } catch {
-        // no valid session
+      } catch (error: any) {
+        // Handle network errors gracefully
+        if (error.code === 'NETWORK_ERROR' || error.message === 'Network Error') {
+          console.warn('Network error during auth refresh, user will need to login manually');
+        } else {
+          console.warn('Auth refresh failed:', error);
+        }
+        // Clear any stale auth state
+        setToken(null);
+        setUser(null);
+        setPermissions(new Set());
+        delete (api.defaults.headers.common as any)['Authorization'];
       }
       setIsLoading(false);
     };

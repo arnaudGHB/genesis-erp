@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import api from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -22,9 +23,22 @@ type LoginFormData = z.infer<typeof loginSchema>;
 export default function LoginPage() {
   const { login } = useAuth();
   const router = useRouter();
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginFormData>({
+  const { register, handleSubmit, formState: { errors, isSubmitting }, setValue } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
+
+  // Clear URL parameters on mount to prevent credential exposure
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      if (url.searchParams.has('email') || url.searchParams.has('password')) {
+        // Clear sensitive parameters from URL
+        url.searchParams.delete('email');
+        url.searchParams.delete('password');
+        window.history.replaceState({}, '', url.pathname + url.hash);
+      }
+    }
+  }, []);
 
   const onSubmit = async (data: LoginFormData) => {
     try {
@@ -34,10 +48,19 @@ export default function LoginPage() {
       const { access_token } = response.data;
       await login(access_token);
       router.push('/dashboard');
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erreur de connexion:", error);
-      // Améliorer le feedback utilisateur plus tard (ex: toast notification)
-      alert('Email ou mot de passe incorrect.');
+
+      // Handle different error types
+      if (error.code === 'NETWORK_ERROR' || error.message === 'Network Error') {
+        alert('Erreur de connexion réseau. Vérifiez votre connexion internet.');
+      } else if (error.response?.status === 401) {
+        alert('Email ou mot de passe incorrect.');
+      } else if (error.response?.status === 429) {
+        alert('Trop de tentatives. Veuillez réessayer dans quelques minutes.');
+      } else {
+        alert('Erreur de connexion. Veuillez réessayer.');
+      }
     }
   };
 
