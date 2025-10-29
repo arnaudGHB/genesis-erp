@@ -7,7 +7,7 @@ import axios from 'axios';
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001', // default for dev
   withCredentials: true, // ensure HttpOnly refresh cookie is sent on cross-site requests
-  timeout: 10000, // 10 second timeout
+  timeout: 30000, // 30 second timeout for production
 });
 
 // Add request interceptor for debugging
