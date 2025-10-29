@@ -28,7 +28,7 @@ export default function UsersPage() {
       setLoading(true);
       const response = await api.get('/users');
       setUsers(response.data);
-    } catch (err) {
+    } catch {
       toast.error("Erreur lors du chargement des utilisateurs.");
     } finally {
       setLoading(false);
