@@ -62,10 +62,12 @@ export function UserForm({ onSubmit, defaultValues, isSubmitting, roles = [] }: 
             </AvatarFallback>
           </Avatar>
           <div className="space-y-1">
-            <FormLabel>Photo de profil</FormLabel>
-            <FormDescription>
+            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+              Photo de profil
+            </label>
+            <p className="text-sm text-muted-foreground">
               Téléchargez une photo de profil (optionnel). Fonctionnalité à implémenter.
-            </FormDescription>
+            </p>
           </div>
         </div>
 
