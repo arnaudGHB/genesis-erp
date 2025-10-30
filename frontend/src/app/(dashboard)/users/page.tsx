@@ -1,11 +1,13 @@
 "use client";
 import { useEffect, useState } from 'react';
 import api from '@/lib/api';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { UserForm, userSchema } from './UserForm';
+import { DataTable } from './components/data-table';
+import { columns } from './components/columns';
+import { UserProfilePanel } from './components/user-profile-panel';
 import { z } from "zod";
 
 type User = {
@@ -30,6 +32,7 @@ export default function UsersPage() {
 
   const [isCreateModalOpen, setCreateModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   const fetchUsers = async () => {
     try {
@@ -84,14 +87,27 @@ export default function UsersPage() {
     }
   };
 
-  const handleDelete = async (userId: string) => {
+  const handleRowClick = (user: User) => {
+    setSelectedUser(user);
+  };
+
+  const handleEditUser = (user: User) => {
+    setEditingUser(user);
+  };
+
+  const handleViewProfile = (user: User) => {
+    setSelectedUser(user);
+  };
+
+  const handleDeleteUser = async (userId: string) => {
     if (window.confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est irréversible.")) {
       try {
         await api.delete(`/users/${userId}`);
         toast.success("Utilisateur supprimé avec succès !");
         await fetchUsers();
+        setSelectedUser(null); // Fermer le panneau si l'utilisateur supprimé était sélectionné
       } catch {
-          toast.error("Erreur lors de la suppression de l'utilisateur.");
+        toast.error("Erreur lors de la suppression de l'utilisateur.");
       }
     }
   };
@@ -99,70 +115,63 @@ export default function UsersPage() {
   if (loading) return <div className="flex items-center justify-center h-64"><p>Chargement des données...</p></div>;
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Gestion des Utilisateurs</h1>
+    <div className="flex h-full">
+      <div className="flex-1 space-y-4 p-4">
+        {/* En-tête avec compteur et bouton d'ajout */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Utilisateurs</h1>
+            <p className="text-muted-foreground">{users.length} actifs</p>
+          </div>
 
-        {/* --- MODALE DE CRÉATION --- */}
-        <Dialog open={isCreateModalOpen} onOpenChange={setCreateModalOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={() => setEditingUser(null)}>+ Ajouter un Utilisateur</Button>
-          </DialogTrigger>
+          {/* --- MODALE DE CRÉATION --- */}
+          <Dialog open={isCreateModalOpen} onOpenChange={setCreateModalOpen}>
+            <DialogTrigger asChild>
+              <Button onClick={() => setEditingUser(null)}>+ Nouvel Utilisateur</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader><DialogTitle>Ajouter un nouvel utilisateur</DialogTitle></DialogHeader>
+              <UserForm onSubmit={handleFormSubmit} isSubmitting={isSubmitting} roles={roles} />
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        {/* DataTable avec toutes les fonctionnalités */}
+        <DataTable
+          columns={columns}
+          data={users}
+          onRowClick={handleRowClick}
+          onEditUser={handleEditUser}
+          onViewProfile={handleViewProfile}
+          onDeleteUser={handleDeleteUser}
+        />
+
+        {/* --- MODALE DE MODIFICATION --- */}
+        <Dialog open={!!editingUser} onOpenChange={(isOpen) => !isOpen && setEditingUser(null)}>
           <DialogContent>
-            <DialogHeader><DialogTitle>Ajouter un nouvel utilisateur</DialogTitle></DialogHeader>
-            <UserForm onSubmit={handleFormSubmit} isSubmitting={isSubmitting} roles={roles} />
+            <DialogHeader><DialogTitle>Modifier l'utilisateur</DialogTitle></DialogHeader>
+            <UserForm
+              onSubmit={handleFormSubmit}
+              isSubmitting={isSubmitting}
+              roles={roles}
+              defaultValues={{
+                name: editingUser?.name || '',
+                email: editingUser?.email || '',
+                roleIds: editingUser?.roles?.map(role => role.id) || []
+              }}
+            />
           </DialogContent>
         </Dialog>
       </div>
 
-      <div className="border rounded-lg bg-card">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Nom</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Rôles</TableHead>
-              <TableHead>Date de création</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {users.map((user) => (
-              <TableRow key={user.id}>
-                <TableCell className="font-medium">{user.name || 'N/A'}</TableCell>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>{user.roles?.map(role => role.name).join(', ') || 'Aucun'}</TableCell>
-                <TableCell>{new Date(user.createdAt).toLocaleDateString('fr-FR')}</TableCell>
-                <TableCell className="text-right space-x-2">
-
-                  {/* --- MODALE DE MODIFICATION --- */}
-                  <Dialog open={editingUser?.id === user.id} onOpenChange={(isOpen) => !isOpen && setEditingUser(null)}>
-                    <DialogTrigger asChild>
-                      <Button variant="outline" size="sm" onClick={() => setEditingUser(user)}>Modifier</Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader><DialogTitle>Modifier l'utilisateur</DialogTitle></DialogHeader>
-                      {/* On passe les valeurs par défaut uniquement pour la modification */}
-                      <UserForm
-                        onSubmit={handleFormSubmit}
-                        isSubmitting={isSubmitting}
-                        roles={roles}
-                        defaultValues={{
-                          name: editingUser?.name || '',
-                          email: editingUser?.email || '',
-                          roleIds: editingUser?.roles?.map(role => role.id) || []
-                        }}
-                      />
-                    </DialogContent>
-                  </Dialog>
-
-                  <Button variant="destructive" size="sm" onClick={() => handleDelete(user.id)}>Supprimer</Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+      {/* Panneau latéral de profil */}
+      {selectedUser && (
+        <UserProfilePanel
+          user={selectedUser}
+          onClose={() => setSelectedUser(null)}
+          onEdit={handleEditUser}
+        />
+      )}
     </div>
   );
 }
