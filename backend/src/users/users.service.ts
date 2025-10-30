@@ -11,11 +11,21 @@ export class UsersService {
   async create(createUserDto: CreateUserDto) {
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
-    const user = await this.prisma.user.create({ // stocker le résultat dans une variable
+    const user = await this.prisma.user.create({
       data: {
         email: createUserDto.email,
         name: createUserDto.name,
         password: hashedPassword,
+        roles: createUserDto.roleIds ? {
+          connect: createUserDto.roleIds.map(id => ({ id })),
+        } : undefined,
+      },
+      include: {
+        roles: {
+          select: {
+            name: true,
+          },
+        },
       },
     });
 
@@ -38,6 +48,7 @@ export class UsersService {
         createdAt: true,
         roles: {
           select: {
+            id: true,
             name: true,
           },
         },
@@ -70,9 +81,23 @@ export class UsersService {
       updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
     }
 
+    const data: any = { ...updateUserDto };
+    if (updateUserDto.roleIds) {
+      data.roles = {
+        set: updateUserDto.roleIds.map(id => ({ id })),
+      };
+    }
+
     const updatedUser = await this.prisma.user.update({
-      where: { id: id },
-      data: updateUserDto,
+      where: { id },
+      data,
+      include: {
+        roles: {
+          select: {
+            name: true,
+          },
+        },
+      },
     });
 
     const { password, ...result } = updatedUser;

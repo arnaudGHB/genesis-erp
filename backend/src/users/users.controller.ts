@@ -5,11 +5,15 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { FlexibleAuthGuard } from '../auth/flexible-auth.guard';
+import { PrismaService } from '../prisma/prisma.service';
 
 @UseGuards(FlexibleAuthGuard)
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly prisma: PrismaService,
+  ) {}
 
   @Post()
   @Roles('Administrateur')
@@ -45,5 +49,16 @@ export class UsersController {
   @UseGuards(RolesGuard)
   remove(@Param('id') id: string) {
     return this.usersService.remove(id);
+  }
+
+  @Get('roles/all')
+  async getAllRoles() {
+    return this.prisma.role.findMany({
+      select: {
+        id: true,
+        name: true,
+        description: true,
+      },
+    });
   }
 }

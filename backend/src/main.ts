@@ -97,7 +97,6 @@ async function bootstrap() {
     exposedHeaders: ['WWW-Authenticate'],
     optionsSuccessStatus: 204,
     maxAge: 86400, // 24h cache for preflight
-    preflightContinue: false,
   });
 
   app.useGlobalPipes(new ValidationPipe({
