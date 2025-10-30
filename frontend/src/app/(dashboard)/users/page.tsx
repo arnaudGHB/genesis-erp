@@ -7,7 +7,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { toast } from "sonner";
 import { UserForm, userSchema } from './UserForm';
 import { z } from "zod";
-import { Checkbox } from "@/components/ui/checkbox";
 
 type User = {
   id: string;
@@ -37,7 +36,7 @@ export default function UsersPage() {
       setLoading(true);
       const response = await api.get('/users');
       setUsers(response.data.data || response.data); // Gère la pagination future
-    } catch (_err) {
+    } catch {
       toast.error("Erreur lors du chargement des utilisateurs.");
     } finally {
       setLoading(false);
@@ -48,7 +47,7 @@ export default function UsersPage() {
     try {
       const response = await api.get('/users/roles/all');
       setRoles(response.data);
-    } catch (_err) {
+    } catch {
       toast.error("Erreur lors du chargement des rôles.");
     }
   };
@@ -75,7 +74,7 @@ export default function UsersPage() {
       let errorMessage = `Erreur lors de la ${action.toLowerCase()} de l'utilisateur.`;
       let errorDescription = '';
       if (typeof error === 'object' && error !== null && 'response' in error) {
-        const response = (error as any).response;
+        const response = (error as { response?: { data?: { message?: string; error?: string } } }).response;
         errorMessage = response?.data?.message || errorMessage;
         errorDescription = response?.data?.error || '';
       }
@@ -91,8 +90,8 @@ export default function UsersPage() {
         await api.delete(`/users/${userId}`);
         toast.success("Utilisateur supprimé avec succès !");
         await fetchUsers();
-      } catch (_error) {
-        toast.error("Erreur lors de la suppression de l'utilisateur.");
+      } catch {
+          toast.error("Erreur lors de la suppression de l'utilisateur.");
       }
     }
   };
@@ -103,12 +102,14 @@ export default function UsersPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Gestion des Utilisateurs</h1>
+
+        {/* --- MODALE DE CRÉATION --- */}
         <Dialog open={isCreateModalOpen} onOpenChange={setCreateModalOpen}>
-          <DialogTrigger asChild><Button>+ Ajouter un Utilisateur</Button></DialogTrigger>
+          <DialogTrigger asChild>
+            <Button onClick={() => setEditingUser(null)}>+ Ajouter un Utilisateur</Button>
+          </DialogTrigger>
           <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Ajouter un nouvel utilisateur</DialogTitle>
-            </DialogHeader>
+            <DialogHeader><DialogTitle>Ajouter un nouvel utilisateur</DialogTitle></DialogHeader>
             <UserForm onSubmit={handleFormSubmit} isSubmitting={isSubmitting} roles={roles} />
           </DialogContent>
         </Dialog>
@@ -133,16 +134,15 @@ export default function UsersPage() {
                 <TableCell>{user.roles?.map(role => role.name).join(', ') || 'Aucun'}</TableCell>
                 <TableCell>{new Date(user.createdAt).toLocaleDateString('fr-FR')}</TableCell>
                 <TableCell className="text-right space-x-2">
+
+                  {/* --- MODALE DE MODIFICATION --- */}
                   <Dialog open={editingUser?.id === user.id} onOpenChange={(isOpen) => !isOpen && setEditingUser(null)}>
                     <DialogTrigger asChild>
-                      <Button variant="outline" size="sm" onClick={() => setEditingUser(user)}>
-                        Modifier
-                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => setEditingUser(user)}>Modifier</Button>
                     </DialogTrigger>
                     <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Modifier l'utilisateur : {editingUser?.name || editingUser?.email}</DialogTitle>
-                      </DialogHeader>
+                      <DialogHeader><DialogTitle>Modifier l'utilisateur</DialogTitle></DialogHeader>
+                      {/* On passe les valeurs par défaut uniquement pour la modification */}
                       <UserForm
                         onSubmit={handleFormSubmit}
                         isSubmitting={isSubmitting}
@@ -155,9 +155,8 @@ export default function UsersPage() {
                       />
                     </DialogContent>
                   </Dialog>
-                  <Button variant="destructive" size="sm" onClick={() => handleDelete(user.id)}>
-                    Supprimer
-                  </Button>
+
+                  <Button variant="destructive" size="sm" onClick={() => handleDelete(user.id)}>Supprimer</Button>
                 </TableCell>
               </TableRow>
             ))}

@@ -31,7 +31,13 @@ interface UserFormProps {
 export function UserForm({ onSubmit, defaultValues, isSubmitting, roles = [] }: UserFormProps) {
   const form = useForm<UserFormValues & { roleIds?: string[] }>({
     resolver: zodResolver(userSchema),
-    defaultValues: defaultValues || { name: "", email: "", roleIds: [] },
+    // CORRECTION : Fournir une valeur par défaut pour TOUS les champs du schéma.
+    defaultValues: defaultValues || {
+      name: "",
+      email: "",
+      password: "",
+      roleIds: [],
+    },
   });
 
   const handleSubmit = (values: UserFormValues & { roleIds?: string[] }) => {
