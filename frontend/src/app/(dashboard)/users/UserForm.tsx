@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Upload } from "lucide-react";
 
 export const userSchema = z.object({
   name: z.string().min(2, "Le nom est requis."),
@@ -51,6 +53,22 @@ export function UserForm({ onSubmit, defaultValues, isSubmitting, roles = [] }: 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+        {/* Section Photo de profil */}
+        <div className="flex items-center space-x-4">
+          <Avatar className="h-16 w-16">
+            <AvatarImage src="" alt="Photo de profil" />
+            <AvatarFallback>
+              <Upload className="h-6 w-6" />
+            </AvatarFallback>
+          </Avatar>
+          <div className="space-y-1">
+            <FormLabel>Photo de profil</FormLabel>
+            <FormDescription>
+              Téléchargez une photo de profil (optionnel). Fonctionnalité à implémenter.
+            </FormDescription>
+          </div>
+        </div>
+
         <FormField control={form.control} name="name" render={({ field }) => (
           <FormItem>
             <FormLabel>Nom</FormLabel>
