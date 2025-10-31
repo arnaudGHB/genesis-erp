@@ -1,275 +1,142 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Role as PrismaRole } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log(`Start seeding ...` );
+  console.log(`🧹 Nettoyage de la base de données existante...`);
+  await prisma.user.deleteMany({});
+  await prisma.role.deleteMany({});
+  await prisma.permission.deleteMany({});
+  await prisma.product.deleteMany({});
+  await prisma.stockLevel.deleteMany({});
 
-  // 1. Créer les permissions de base
+  console.log(`🌱 Démarrage du seeding...`);
+
+  // --- 1. Création des Permissions ---
   const permissionsToCreate = [
+    // User Permissions
     'user:create', 'user:read', 'user:update', 'user:delete',
+    // Product Permissions
     'product:create', 'product:read', 'product:update', 'product:delete',
-    'stock:create', 'stock:read', 'stock:update', 'stock:delete', 'stock:adjust',
-    'role:read', 'role:assign'
+    // Stock Permissions
+    'stock:read', 'stock:adjust',
+    // Role & Permission Management
+    'role:read', 'role:update',
+    // POS Permissions
+    'pos:use', 'pos:manage_sessions',
+    // Reporting Permissions
+    'reporting:view'
   ];
 
   for (const permName of permissionsToCreate) {
     await prisma.permission.upsert({
       where: { name: permName },
       update: {},
-      create: { name: permName },
+      create: { name: permName, description: `Permission to ${permName.replace(':', ' ')}` },
     });
   }
-  console.log('Permissions created/verified.');
+  console.log(`✅ ${permissionsToCreate.length} permissions créées/vérifiées.`);
 
-  // 2. Créer les rôles de base
-  const adminRole = await prisma.role.upsert({
-    where: { name: 'Administrateur' },
-    update: {},
-    create: { name: 'Administrateur', description: 'Administrateur avec tous les droits' },
-  });
-
-  const cashierRole = await prisma.role.upsert({
-    where: { name: 'Caissier' },
-    update: {},
-    create: { name: 'Caissier', description: 'Caissier avec accès POS' },
-  });
-
-  const managerRole = await prisma.role.upsert({
-    where: { name: 'Manager' },
-    update: {},
-    create: { name: 'Manager', description: 'Manager de magasin avec droits étendus' },
-  });
-  console.log('Roles created/verified.');
-
-  // 3. Associer les permissions aux rôles
   const allPermissions = await prisma.permission.findMany();
+  const productReadPermission = allPermissions.find(p => p.name === 'product:read')!;
+  const posUsePermission = allPermissions.find(p => p.name === 'pos:use')!;
 
-  // ADMIN : toutes les permissions
-  await prisma.role.update({
-    where: { id: adminRole.id },
+  // --- 2. Création des Rôles ---
+  const adminRole = await prisma.role.create({
     data: {
+      name: 'ADMIN',
+      description: 'Accès total à toutes les fonctionnalités du système.',
+      permissions: { connect: allPermissions.map(p => ({ id: p.id })) },
+    },
+  });
+
+  const managerRole = await prisma.role.create({
+    data: {
+      name: 'MANAGER',
+      description: 'Gère un point de vente : stocks, produits, et supervise les caissiers.',
       permissions: {
-        set: allPermissions.map(p => ({ id: p.id })),
+        connect: allPermissions
+          .filter(p => p.name.startsWith('product:') || p.name.startsWith('stock:') || p.name === 'user:read' || p.name === 'pos:manage_sessions')
+          .map(p => ({ id: p.id })),
       },
     },
   });
 
-  // CASHIER : permissions limitées au POS et lecture
-  const cashierPermissions = allPermissions.filter(p =>
-    ['product:read', 'stock:read', 'stock:update', 'stock:adjust'].includes(p.name)
-  );
-  await prisma.role.update({
-    where: { id: cashierRole.id },
+  const cashierRole = await prisma.role.create({
     data: {
-      permissions: {
-        set: cashierPermissions.map(p => ({ id: p.id })),
-      },
+      name: 'CASHIER',
+      description: 'Utilise le Point de Vente pour effectuer les transactions.',
+      permissions: { connect: [{ id: productReadPermission.id }, { id: posUsePermission.id }] },
     },
   });
+  console.log(`✅ 3 rôles (ADMIN, MANAGER, CASHIER) créés avec leurs permissions.`);
 
-  // MANAGER : permissions de gestion sans suppression utilisateurs
-  const managerPermissions = allPermissions.filter(p =>
-    !['user:delete'].includes(p.name)
-  );
-  await prisma.role.update({
-    where: { id: managerRole.id },
+  // --- 3. Création des Utilisateurs ---
+  const hashedPasswordAdmin = await bcrypt.hash('SuperPassword123!', 10);
+  await prisma.user.create({
     data: {
-      permissions: {
-        set: managerPermissions.map(p => ({ id: p.id })),
-      },
-    },
-  });
-  console.log('Permissions assigned to roles.');
-
-  // 4. Créer les utilisateurs de test
-  const hashedPassword = await bcrypt.hash('SuperPassword123!', 10);
-
-  // Admin principal
-  const adminUser = await prisma.user.upsert({
-    where: { email: 'admin.genesis@erp.com' },
-    update: {},
-    create: {
       email: 'admin.genesis@erp.com',
-      name: 'Admin Genesis',
-      password: hashedPassword,
-      roles: {
-        connect: { id: adminRole.id },
-      },
+      name: 'Arnaud Nagué (Admin)',
+      password: hashedPasswordAdmin,
+      roles: { connect: { id: adminRole.id } },
     },
   });
-  console.log(`Admin user created/verified: ${adminUser.email}` );
 
-  // Managers
-  const managerUsers = [
-    { email: 'manager.yaounde@genesis.com', name: 'Manager Yaoundé' },
-    { email: 'manager.douala@genesis.com', name: 'Manager Douala' },
-  ];
+  const hashedPasswordManager = await bcrypt.hash('ManagerPass123', 10);
+  await prisma.user.create({
+    data: {
+      email: 'manager.yaounde@erp.com',
+      name: 'Céline Mbia (Manager)',
+      password: hashedPasswordManager,
+      roles: { connect: { id: managerRole.id } },
+    },
+  });
 
-  for (const userData of managerUsers) {
-    await prisma.user.upsert({
-      where: { email: userData.email },
-      update: {},
-      create: {
-        email: userData.email,
-        name: userData.name,
-        password: hashedPassword,
-        roles: {
-          connect: { id: managerRole.id },
-        },
-      },
-    });
-  }
-  console.log('Manager users created.');
+  const hashedPasswordCashier = await bcrypt.hash('CashierPass123', 10);
+  await prisma.user.create({
+    data: {
+      email: 'cashier.douala@erp.com',
+      name: 'Jean Eboué (Caissier)',
+      password: hashedPasswordCashier,
+      roles: { connect: { id: cashierRole.id } },
+    },
+  });
+  console.log(`✅ 3 utilisateurs de test créés.`);
 
-  // Caissiers
-  const cashierUsers = [
-    { email: 'cashier.yaounde1@genesis.com', name: 'Caissier Yaoundé 1' },
-    { email: 'cashier.yaounde2@genesis.com', name: 'Caissier Yaoundé 2' },
-    { email: 'cashier.douala1@genesis.com', name: 'Caissier Douala 1' },
-    { email: 'cashier.douala2@genesis.com', name: 'Caissier Douala 2' },
-  ];
-
-  for (const userData of cashierUsers) {
-    await prisma.user.upsert({
-      where: { email: userData.email },
-      update: {},
-      create: {
-        email: userData.email,
-        name: userData.name,
-        password: hashedPassword,
-        roles: {
-          connect: { id: cashierRole.id },
-        },
-      },
-    });
-  }
-  console.log('Cashier users created.');
-
-  // Utilisateurs sans rôles (pour tests)
-  const regularUsers = [
-    { email: 'user.test1@genesis.com', name: 'Utilisateur Test 1' },
-    { email: 'user.test2@genesis.com', name: 'Utilisateur Test 2' },
-  ];
-
-  for (const userData of regularUsers) {
-    await prisma.user.upsert({
-      where: { email: userData.email },
-      update: {},
-      create: {
-        email: userData.email,
-        name: userData.name,
-        password: hashedPassword,
-      },
-    });
-  }
-  console.log('Regular users created.');
-
-  // 5. Créer des produits de test (livres scolaires)
+  // --- 4. Création des Produits (Catalogue) ---
   const productsToCreate = [
-    {
-      name: 'Livre de Mathématiques Terminale C',
-      sku: 'MATH-TER-C-001',
-      price: 15000,
-      cost: 12000,
-      description: 'Manuel de mathématiques pour Terminale C - Programme MINEDUB 2025',
-      barcode: '9781234567890',
-    },
-    {
-      name: 'Cahier d\'Exercices Français 2nde',
-      sku: 'FR-2NDE-EX-001',
-      price: 8000,
-      cost: 6000,
-      description: 'Cahier d\'exercices de français pour Seconde - Méthode active',
-      barcode: '9781234567891',
-    },
-    {
-      name: 'Atlas Géographique Scolaire',
-      sku: 'GEO-ATLAS-001',
-      price: 25000,
-      cost: 20000,
-      description: 'Atlas géographique complet pour collège et lycée - Cartes Cameroun détaillées',
-      barcode: '9781234567892',
-    },
-    {
-      name: 'Manuel d\'Histoire CM2',
-      sku: 'HIST-CM2-001',
-      price: 12000,
-      cost: 9500,
-      description: 'Histoire du Cameroun et Afrique - Niveau CM2',
-      barcode: '9781234567893',
-    },
-    {
-      name: 'Cahier de Sciences Physiques 3ème',
-      sku: 'PHYS-3EME-001',
-      price: 9500,
-      cost: 7500,
-      description: 'Physique-Chimie pour classe de 3ème - Exercices pratiques',
-      barcode: '9781234567894',
-    },
-    {
-      name: 'Méthode Anglais Terminale',
-      sku: 'ANG-TER-METH-001',
-      price: 18000,
-      cost: 14500,
-      description: 'Méthode complète anglais Terminale - Préparation BAC',
-      barcode: '9781234567895',
-    },
-    {
-      name: 'Livre de Philosophie Terminale',
-      sku: 'PHILO-TER-001',
-      price: 16000,
-      cost: 13000,
-      description: 'Philosophie Terminale - Textes et exercices',
-      barcode: '9781234567896',
-    },
-    {
-      name: 'Cahier de Géométrie 1ère',
-      sku: 'GEO-1ERE-001',
-      price: 11000,
-      cost: 8800,
-      description: 'Géométrie pour Première - Construction et démonstration',
-      barcode: '9781234567897',
-    },
+    { name: 'Livre de Mathématiques - Terminale C', sku: 'LIV-MATH-TC', price: 7500, cost: 5000 },
+    { name: 'Livre de Physique-Chimie - Terminale D', sku: 'LIV-PC-TD', price: 8000, cost: 5500 },
+    { name: 'Cahier de 200 Pages - Grand Format', sku: 'CAH-200-GF', price: 1500, cost: 900 },
+    { name: 'Stylo à Bille Bleu - Bic', sku: 'STY-BIC-BL', price: 150, cost: 80 },
+    { name: 'Ensemble Géométrique (Règle, Equerre, Compas)', sku: 'SET-GEO-01', price: 2500, cost: 1600 },
   ];
 
   for (const productData of productsToCreate) {
-    await prisma.product.upsert({
-      where: { sku: productData.sku },
-      update: {},
-      create: productData,
-    });
+    await prisma.product.create({ data: productData });
   }
-  console.log('Products created.');
+  console.log(`✅ ${productsToCreate.length} produits créés.`);
 
-  // 6. Créer des stocks de test
-  const stores = ['Yaoundé Centre', 'Douala Bonanjo', 'Bafoussam'];
+  const mathBook = await prisma.product.findUnique({ where: { sku: 'LIV-MATH-TC' } });
+  const pcBook = await prisma.product.findUnique({ where: { sku: 'LIV-PC-TD' } });
+  const notebook = await prisma.product.findUnique({ where: { sku: 'CAH-200-GF' } });
 
-  for (const store of stores) {
-    for (const product of productsToCreate.slice(0, 5)) { // 5 produits par magasin
-      const quantity = Math.floor(Math.random() * 50) + 10; // 10-60 unités
-
-      await prisma.stockLevel.upsert({
-        where: {
-          productId_location: {
-            productId: (await prisma.product.findUnique({ where: { sku: product.sku } }))!.id,
-            location: store,
-          },
-        },
-        update: {},
-        create: {
-          productId: (await prisma.product.findUnique({ where: { sku: product.sku } }))!.id,
-          location: store,
-          quantity: quantity,
-          minThreshold: 5,
-        },
-      });
-    }
+  // --- 5. Création des Niveaux de Stock ---
+  if (mathBook) {
+    await prisma.stockLevel.create({ data: { productId: mathBook.id, location: 'Magasin Yaoundé', quantity: 150 } });
+    await prisma.stockLevel.create({ data: { productId: mathBook.id, location: 'Entrepôt Douala', quantity: 500 } });
   }
-  console.log('Stock levels created.');
+  if (pcBook) {
+    await prisma.stockLevel.create({ data: { productId: pcBook.id, location: 'Magasin Yaoundé', quantity: 120 } });
+  }
+  if (notebook) {
+    await prisma.stockLevel.create({ data: { productId: notebook.id, location: 'Magasin Yaoundé', quantity: 800 } });
+    await prisma.stockLevel.create({ data: { productId: notebook.id, location: 'Entrepôt Douala', quantity: 2000 } });
+  }
+  console.log(`✅ Niveaux de stock initiaux créés pour 3 produits sur 2 emplacements.`);
 
-  console.log(`Seeding finished.` );
+  console.log(`🎉 Seeding terminé avec succès !`);
 }
 
 main()
